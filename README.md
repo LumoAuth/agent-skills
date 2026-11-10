@@ -1,46 +1,107 @@
+<div align="center">
+
+<a href="https://lumoauth.dev">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://docs.lumoauth.dev/img/lumoauth-logo-horizontal-reversed.svg">
+    <img src="https://docs.lumoauth.dev/img/lumoauth-logo-horizontal.svg" alt="LumoAuth" height="36">
+  </picture>
+</a>
+
 # LumoAuth Agent Skills
 
-Skills that teach AI coding agents how to work with [LumoAuth](https://lumoauth.dev): adding sign-in and access control to an app, giving an AI agent its own identity, securing an MCP server and running an organization from the terminal.
+**Teach your coding agent to add sign-in, access control and agent identity with LumoAuth.**<br>
+44 skills for Claude Code, Cursor, Codex, GitHub Copilot and every other agent that supports Agent Skills.
 
-Skills follow the [Agent Skills](https://agentskills.io/) format. They work in Claude Code, Cursor, Codex, GitHub Copilot and any other agent that supports the format.
+[![Skills: 44](https://img.shields.io/badge/skills-44-111)](#skills)
+[![Format: Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-111)](https://agentskills.io/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-111)](LICENSE)
 
-## Installation
+[Quick start](#quick-start) · [What you can ask](#what-you-can-ask) · [Install](#install) · [Skills](#skills) · [Contributing](#contributing) · [Docs](https://docs.lumoauth.dev)
+
+</div>
+
+---
+
+## Quick start
+
+**1. Install the skills** in your project:
 
 ```bash
 npx skills add lumoauth/agent-skills
 ```
 
-Install one skill:
+**2. Ask your agent** for the change in plain words:
 
-```bash
-npx skills add lumoauth/agent-skills --skill lumoauth-nextjs
-```
-
-## Usage
-
-An installed skill is used automatically when a task matches it. Examples:
-
-```
+```text
 Add LumoAuth sign-in to this Next.js app
 ```
 
-```
-Only users with the billing.manage permission may open the billing page
+**3. Answer its questions.** The agent looks in your project for the organization slug, the client ID and other values. It asks you for each value that it cannot find.
+
+No organization yet? [Sign up at app.lumoauth.dev](https://app.lumoauth.dev/register). The slug that you choose there is the one that the agent asks for.
+
+## What you can ask
+
+You never need to name a skill. Your agent reads the task and loads the skill that fits.
+
+| Ask your agent | Skill that it loads |
+|---|---|
+| Add LumoAuth sign-in to this Next.js app | [`lumoauth-nextjs`](skills/lumoauth-nextjs) |
+| Only users with the `reports.read` permission may call this FastAPI route | [`lumoauth-fastapi`](skills/lumoauth-fastapi) |
+| Turn on passkeys and require MFA for administrators | [`lumoauth-mfa-passkeys`](skills/lumoauth-mfa-passkeys) |
+| Let our customers sign in with their company's Okta | [`lumoauth-enterprise-sso`](skills/lumoauth-enterprise-sso) |
+| Make the agent ask for approval on my phone before it sends a payment | [`lumoauth-agent-approvals`](skills/lumoauth-agent-approvals) |
+| Add LumoAuth to the tool calls of this LangGraph agent | [`lumoauth-agent-frameworks`](skills/lumoauth-agent-frameworks) |
+| Protect this FastMCP server with LumoAuth | [`lumoauth-mcp-server`](skills/lumoauth-mcp-server) |
+| Verify LumoAuth webhooks in this Express app | [`lumoauth-webhooks`](skills/lumoauth-webhooks) |
+| Move our users from Auth0 to LumoAuth | [`lumoauth-migrate`](skills/lumoauth-migrate) |
+
+> [!TIP]
+> Not sure where to begin? Ask your agent to **use `lumoauth-getting-started`**. It collects the values that every integration needs, checks your organization and points to the right skill for the task.
+
+## How the skills work with you
+
+- **They ask, and never guess.** The agent reads `.env` and config files first. It asks you for any slug, client ID or key that is missing.
+- **They show a change before making it.** The agent shows you each command that creates, changes or deletes something in your organization, before it runs the command.
+- **They keep secrets on the server.** Client secrets, API keys and agent secrets come from environment variables. They never go into browser or mobile code.
+- **They end with a check.** Each skill tells the agent how to prove that the change works.
+- **They follow the source code.** Package names, functions, endpoints and CLI flags come from the LumoAuth SDK and CLI source, not from memory.
+
+## Install
+
+| To | Run |
+|---|---|
+| Install every skill in this project | `npx skills add lumoauth/agent-skills` |
+| Install one skill | `npx skills add lumoauth/agent-skills --skill lumoauth-nextjs` |
+| Install for all your projects | `npx skills add lumoauth/agent-skills -g` |
+| Install for Claude Code only | `npx skills add lumoauth/agent-skills -a claude-code` |
+| Update the installed skills | `npx skills update` |
+
+Installing all 44 skills is cheap. At startup your agent reads only the name and the description of each skill. It loads the full instructions when a task matches, and it opens the reference files only when it needs them.
+
+<details>
+<summary><b>Install without the skills CLI</b></summary>
+
+<br>
+
+Claude Code:
+
+```bash
+git clone https://github.com/lumoauth/agent-skills.git
+cp -r agent-skills/skills/lumoauth-nextjs ~/.claude/skills/
 ```
 
-```
-Protect this FastMCP server with LumoAuth
-```
+claude.ai: add the skill folder to project knowledge, or paste the contents of its `SKILL.md` into the conversation.
 
-```
-Make the agent ask for approval on my phone before it sends a payment
-```
+</details>
 
-New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values that every integration needs and points to the skill for the task.
+## Skills
 
-## Available skills
+[Getting started](#getting-started) · [Web and mobile apps](#web-and-mobile-apps) · [Backends and APIs](#backends-and-apis) · [OAuth and OpenID Connect](#oauth-and-openid-connect) · [Sign-in features](#sign-in-features) · [Authorization](#authorization) · [AI agents](#ai-agents) · [MCP](#mcp) · [Operations](#operations)
 
 ### Getting started
+
+Orientation for a new LumoAuth organization and the `lumo` command line.
 
 | Skill | Use it to |
 |---|---|
@@ -48,6 +109,8 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 | [`lumoauth-cli`](skills/lumoauth-cli) | Install and use the `lumo` command line: login, profiles, every resource command, JSON output, sandboxes, raw API access |
 
 ### Web and mobile apps
+
+Add sign-in, sessions and access control to browser and mobile apps.
 
 | Skill | Use it to |
 |---|---|
@@ -58,6 +121,8 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 | [`lumoauth-react-native`](skills/lumoauth-react-native) | Sign users in from React Native and Expo apps with `@lumoauth/client`: PKCE, deep links and secure storage |
 
 ### Backends and APIs
+
+Sign users in on the server and check access in Node.js, Python, Go, .NET, Java and PHP.
 
 | Skill | Use it to |
 |---|---|
@@ -74,13 +139,17 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 
 ### OAuth and OpenID Connect
 
+Use LumoAuth with any standard library, harden the flows and protect APIs.
+
 | Skill | Use it to |
 |---|---|
-| [`lumoauth-oauth-oidc`](skills/lumoauth-oauth-oidc) | Connect any standard OAuth 2.0 / OpenID Connect library: discovery, authorization code with PKCE, tokens, refresh, userinfo, logout, client registration |
+| [`lumoauth-oauth-oidc`](skills/lumoauth-oauth-oidc) | Connect any standard OAuth 2.0 or OpenID Connect library: discovery, authorization code with PKCE, tokens, refresh, userinfo, logout, client registration |
 | [`lumoauth-oauth-advanced`](skills/lumoauth-oauth-advanced) | Use PAR, DPoP, FAPI 2.0, resource indicators, CIBA, device authorization, client attestation, introspection and revocation |
 | [`lumoauth-api-protection`](skills/lumoauth-api-protection) | Protect an API in any language: validate access tokens, use client credentials for machine-to-machine calls, choose between API keys and tokens |
 
 ### Sign-in features
+
+Configure how people sign in: passwords, magic links, social login, MFA, passkeys, enterprise SSO, SCIM and branding.
 
 | Skill | Use it to |
 |---|---|
@@ -92,6 +161,8 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 
 ### Authorization
 
+Roles, attribute rules and relationships behind one check.
+
 | Skill | Use it to |
 |---|---|
 | [`lumoauth-authorization`](skills/lumoauth-authorization) | Choose an access-control model, use the unified check API and decide where to enforce |
@@ -100,6 +171,8 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 | [`lumoauth-rebac`](skills/lumoauth-rebac) | Model relationships (Zanzibar): object types, relation tuples, checks and expansion |
 
 ### AI agents
+
+Give an agent its own identity, let it act for a user, ask a person for approval and keep it under control.
 
 | Skill | Use it to |
 |---|---|
@@ -112,12 +185,16 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 
 ### MCP
 
+Add OAuth to an MCP server and call a protected MCP server.
+
 | Skill | Use it to |
 |---|---|
 | [`lumoauth-mcp-server`](skills/lumoauth-mcp-server) | Add OAuth to an MCP server with `lumoauth-fastmcp` or `@lumoauth/mcp`, and authorize each tool call |
 | [`lumoauth-mcp-client`](skills/lumoauth-mcp-client) | Call a protected MCP server from an agent or app |
 
 ### Operations
+
+Run an organization: the Admin API, users and sessions, customer organizations, webhooks, audit logs, integrations and migrations.
 
 | Skill | Use it to |
 |---|---|
@@ -129,50 +206,52 @@ New to LumoAuth? Start with `lumoauth-getting-started`. It collects the values t
 | [`lumoauth-integrations`](skills/lumoauth-integrations) | Connect alerting, approval channels, device posture, risk, SMS, email and key storage providers |
 | [`lumoauth-migrate`](skills/lumoauth-migrate) | Move from Auth0, Clerk, Okta, Cognito or Firebase Auth |
 
-## Skill structure
+## Inside a skill
 
-Each skill contains:
+Each skill is a folder in the [Agent Skills](https://agentskills.io/) format:
 
-- `SKILL.md` - Instructions for the agent
-- `references/` - Supporting documentation that the agent opens when it needs it (optional)
-- `scripts/` - Helper scripts (optional)
-- `assets/` - Files that the agent copies into the project, such as a ready-made auth module (optional)
-
-## Manual installation
-
-Claude Code:
-
-```bash
-git clone https://github.com/lumoauth/agent-skills.git
-cp -r agent-skills/skills/lumoauth-nextjs ~/.claude/skills/
+```text
+skills/lumoauth-getting-started/
+├── SKILL.md       instructions that the agent follows
+├── references/    detail that the agent opens only when it needs it
+├── scripts/       helper scripts that the agent can run
+└── assets/        files that the agent copies into your project
 ```
 
-claude.ai: add the skill folder to project knowledge, or paste the contents of its `SKILL.md` into the conversation.
+Only `SKILL.md` is required. A skill adds the other folders when it needs them.
 
-## Development
+## Contributing
+
+Read [AGENTS.md](AGENTS.md) before you add or change a skill. It holds the format, the naming rules and the rules for accuracy and content.
+
+Run the checks before you open a pull request:
 
 ```bash
 npm ci --ignore-scripts
-node scripts/validate-skills.mjs
+npm run validate
 ```
 
-The validator checks every skill against the Agent Skills specification and the rules in [AGENTS.md](AGENTS.md): valid frontmatter, a `name` that matches the directory, a `SKILL.md` of 500 lines or fewer, working relative links and an entry in `skills.sh.json`.
+The validator checks each skill against the Agent Skills specification and the rules in AGENTS.md:
 
-## Discovery index
+- valid frontmatter, with a `name` that matches the folder
+- a `SKILL.md` of 500 lines or fewer
+- relative links that point to existing files
+- an entry in `skills.sh.json`, which sets the groups on skills.sh
 
-Every change to a skill on `main` publishes a GitHub release with an Agent Skills discovery index and one artifact per skill. Build the same artifacts locally with:
+To build the discovery index and one archive per skill into `dist/`:
 
 ```bash
-npm ci --ignore-scripts
 node scripts/build-discovery-index.mjs https://example.com/skills
 ```
 
 ## Resources
 
-- Documentation: https://docs.lumoauth.dev
-- SDKs and libraries: https://docs.lumoauth.dev/developer/sdks
-- API reference: https://docs.lumoauth.dev/api-reference
+- [LumoAuth documentation](https://docs.lumoauth.dev)
+- [SDKs and libraries](https://docs.lumoauth.dev/developer/sdks)
+- [API reference](https://docs.lumoauth.dev/api-reference)
+- [The `lumo` command line](https://github.com/LumoAuth/cli)
+- [Agent Skills specification](https://agentskills.io/)
 
 ## License
 
-MIT
+[MIT](LICENSE)
