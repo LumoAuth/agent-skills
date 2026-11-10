@@ -1,0 +1,12 @@
+{
+  "name": "@lumoauth/agent-skills",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-skills.mjs",
+    "build": "node scripts/build-discovery-index.mjs"
+  },
+  "dependencies": {
+    "yaml": "2.9.0"
+  }
+}

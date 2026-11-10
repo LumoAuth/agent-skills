@@ -1,0 +1,104 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Getting started",
+      "description": "Orientation for a new LumoAuth organization and the lumo command line.",
+      "skills": [
+        "lumoauth-getting-started",
+        "lumoauth-cli"
+      ]
+    },
+    {
+      "title": "Web and mobile apps",
+      "description": "Add sign-in, sessions and access control to browser and mobile apps.",
+      "skills": [
+        "lumoauth-nextjs",
+        "lumoauth-react",
+        "lumoauth-vue",
+        "lumoauth-angular",
+        "lumoauth-react-native"
+      ]
+    },
+    {
+      "title": "Backends and APIs",
+      "description": "Sign users in on the server and check access in Node.js, Python, Go, .NET, Java and PHP.",
+      "skills": [
+        "lumoauth-express",
+        "lumoauth-node-backend",
+        "lumoauth-fastapi",
+        "lumoauth-python",
+        "lumoauth-go",
+        "lumoauth-aspnetcore",
+        "lumoauth-spring-boot",
+        "lumoauth-laravel",
+        "lumoauth-symfony",
+        "lumoauth-php"
+      ]
+    },
+    {
+      "title": "OAuth and OpenID Connect",
+      "description": "Use LumoAuth with any standard library, harden the flows and protect APIs.",
+      "skills": [
+        "lumoauth-oauth-oidc",
+        "lumoauth-oauth-advanced",
+        "lumoauth-api-protection"
+      ]
+    },
+    {
+      "title": "Sign-in features",
+      "description": "Configure how people sign in: passwords, magic links, social login, MFA, passkeys, enterprise SSO, SCIM and branding.",
+      "skills": [
+        "lumoauth-login-methods",
+        "lumoauth-mfa-passkeys",
+        "lumoauth-enterprise-sso",
+        "lumoauth-scim",
+        "lumoauth-branding"
+      ]
+    },
+    {
+      "title": "Authorization",
+      "description": "Roles, attribute rules and relationships behind one check.",
+      "skills": [
+        "lumoauth-authorization",
+        "lumoauth-rbac",
+        "lumoauth-abac",
+        "lumoauth-rebac"
+      ]
+    },
+    {
+      "title": "AI agents",
+      "description": "Give an agent its own identity, let it act for a user, ask a person for approval and keep it under control.",
+      "skills": [
+        "lumoauth-agent-identity",
+        "lumoauth-aauth",
+        "lumoauth-agent-delegation",
+        "lumoauth-agent-approvals",
+        "lumoauth-agent-frameworks",
+        "lumoauth-agent-governance"
+      ]
+    },
+    {
+      "title": "MCP",
+      "description": "Add OAuth to an MCP server and call a protected MCP server.",
+      "skills": [
+        "lumoauth-mcp-server",
+        "lumoauth-mcp-client"
+      ]
+    },
+    {
+      "title": "Operations",
+      "description": "Run an organization: the Admin API, users and sessions, customer organizations, webhooks, audit logs, integrations and migrations.",
+      "skills": [
+        "lumoauth-admin-api",
+        "lumoauth-users-sessions",
+        "lumoauth-b2b-saas",
+        "lumoauth-webhooks",
+        "lumoauth-audit-compliance",
+        "lumoauth-integrations",
+        "lumoauth-migrate"
+      ]
+    }
+  ]
+}
