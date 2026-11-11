@@ -114,7 +114,7 @@ Add sign-in, sessions and access control to browser and mobile apps.
 
 | Skill | Use it to |
 |---|---|
-| [`lumoauth-nextjs`](skills/lumoauth-nextjs) | Add sign-in, sessions, route protection and permission checks to Next.js with `@lumoauth/nextjs` |
+| [`lumoauth-nextjs`](skills/lumoauth-nextjs) | Add sign-in, sessions, route protection, a themed profile page and permission checks to Next.js with `@lumoauth/nextjs` |
 | [`lumoauth-react`](skills/lumoauth-react) | Add sign-in components, hooks and `<Protect>` to a React single-page app with `@lumoauth/react` |
 | [`lumoauth-vue`](skills/lumoauth-vue) | Add PKCE sign-in, router guards and permission checks to Vue 3 with `@lumoauth/client` |
 | [`lumoauth-angular`](skills/lumoauth-angular) | Add a sign-in service, route guards and an HTTP interceptor to Angular with `@lumoauth/client` |

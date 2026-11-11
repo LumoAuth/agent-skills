@@ -369,7 +369,7 @@ export default function SignInPage() {
 
 | Option | Type | Description |
 |---|---|---|
-| `theme` | `'light' \| 'dark'` | Forces a theme. Without it the components follow the system setting. |
+| `theme` | `'light' \| 'dark'` | Forces a theme for this component. Without it the component follows a theme attribute on an ancestor, and otherwise the system setting. |
 | `className` | `string` | Extra class on the root element of the component |
 | `variables` | `Record<string, string>` | CSS custom properties, set on the root element of the component |
 
@@ -394,7 +394,7 @@ To theme all components at once, set the properties in the app's stylesheet:
 }
 ```
 
-To follow the app's own theme switch in place of the system setting, set `data-lumoauth-theme="dark"` or `data-lumoauth-theme="light"` on the `<html>` element.
+To follow the app's own theme switch in place of the system setting, set `data-lumoauth-theme="dark"` or `data-lumoauth-theme="light"` on the `<html>` element, or on any element that wraps the components. The classes `la-dark` and `la-light` do the same. On version 1.4.1 or older, a light theme inside a dark system setting needs the attribute on `<html>`.
 
 The styles are injected at runtime in a `<style id="lumoauth-react-styles">` tag. Class names start with `la-`. A Content Security Policy must allow that inline style element.
 

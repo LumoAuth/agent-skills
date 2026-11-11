@@ -12,6 +12,8 @@ Reference for `@lumoauth/nextjs/server` (package version 1.4.1). The entry is ma
 - [Routes from createRouteHandler()](#routes-from-createroutehandler)
 - [The callback URL](#the-callback-url)
 - [lumoAuthMiddleware()](#lumoauthmiddleware)
+- [Next.js 16: proxy.ts and Cache Components](#nextjs-16-proxyts-and-cache-components)
+- [Check permissions on the server](#check-permissions-on-the-server)
 - [Request more scopes](#request-more-scopes)
 - [Sessions and access tokens](#sessions-and-access-tokens)
 - [How the cookie is protected](#how-the-cookie-is-protected)
@@ -76,7 +78,7 @@ export const { GET, POST } = createRouteHandler(lumoAuthConfig);
 ```
 
 ```ts
-// middleware.ts
+// proxy.ts (Next.js 16+) or middleware.ts (Next.js 14, 15)
 import { lumoAuthMiddleware } from '@lumoauth/nextjs/server';
 import { lumoAuthConfig } from './lib/lumoauth-config';
 
@@ -165,7 +167,35 @@ So one build signs in on every address, and each address needs its own entries o
 | **Redirect URIs** | `{origin}/api/auth/callback` |
 | **Logout → Post-logout redirect URIs** | `{origin}{afterSignOutUrl}`, by default `{origin}/` |
 
-LumoAuth compares redirect URIs exactly and accepts no wildcards. An unregistered address gets the **Invalid Redirect URL** page; the `redirect_uri` parameter of that page is the URL to add.
+LumoAuth compares redirect URIs exactly and accepts no wildcards. An unregistered address gets the **Invalid Redirect URL** page; the `redirect_uri` parameter in the address bar of that page is the URL to add.
+
+To read the exact value for an address without a browser, request the login route and do not follow the redirect:
+
+```bash
+curl -sI https://my-app.vercel.app/api/auth/login | grep -i '^location:'
+# location: https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/authorize?...&redirect_uri=https%3A%2F%2Fmy-app.vercel.app%2Fapi%2Fauth%2Fcallback&...
+```
+
+An answer that is not a redirect to LumoAuth means that the address is not the app: a preview that needs a sign-in of its own answers `401`, for example.
+
+Addresses of one app that need separate entries:
+
+| Address | Example |
+|---|---|
+| Local development | `http://localhost:3000` |
+| Preview of an app builder | `https://my-app.v0.build` |
+| Published app | `https://my-app.vercel.app` |
+| Preview deployment of a branch | `https://my-app-git-feature-team.vercel.app` |
+| Custom domain | `https://app.example.com` |
+
+Never derive one of these from another, or from the project name. Read each one from the browser or from the request above.
+
+With the CLI, `--redirect-uris` replaces the whole list, so read the current list first and pass every URI. Show the command to the user before you run it:
+
+```bash
+lumo apps get CLIENT_ID          # prints redirectUris
+lumo apps update CLIENT_ID --redirect-uris http://localhost:3000/api/auth/callback,https://my-app.vercel.app/api/auth/callback
+```
 
 A forged `X-Forwarded-Host` cannot send a code elsewhere: LumoAuth refuses any redirect URI that is not registered. Set `NEXT_PUBLIC_REDIRECT_URI` only when a proxy in front of the app sends neither `X-Forwarded-Host` nor the public `Host` header.
 
@@ -195,7 +225,7 @@ What it does on each request:
 To refresh without protecting any path:
 
 ```ts
-// middleware.ts
+// proxy.ts (Next.js 16+) or middleware.ts (Next.js 14, 15)
 import { lumoAuthMiddleware } from '@lumoauth/nextjs/server';
 
 export default lumoAuthMiddleware();
@@ -206,6 +236,106 @@ export const config = {
 ```
 
 A path check in the middleware confirms only that a valid session exists. It does not check permissions. Check permissions in the page, the route handler or the server action.
+
+## Next.js 16: proxy.ts and Cache Components
+
+**File name.** Next.js 16 renamed the `middleware` file to `proxy`. Use `proxy.ts` on Next.js 16 or newer and `middleware.ts` on Next.js 14 and 15. The content is the same: the default export is the function that `lumoAuthMiddleware()` returns, next to `export const config`.
+
+**Cache Components.** With `cacheComponents: true` in `next.config`, which new Next.js 16 projects have, Next.js prerenders a static shell of every page. A session read uses the cookies of the request, so it cannot be part of that shell. A page or layout that calls `auth()`, `currentUser()` or `protectPage()` then fails `next build`:
+
+```
+Error: Route "/": Next.js encountered uncached or runtime data during prerendering.
+```
+
+Choose one of two fixes for each such page.
+
+Let the page render on each request:
+
+```tsx
+// app/profile/page.tsx
+import { protectPage } from '@lumoauth/nextjs/server';
+
+export const instant = false;
+
+export default async function ProfilePage() {
+  const { userId } = await protectPage({ returnTo: '/profile' });
+  return <p>{userId}</p>;
+}
+```
+
+Or keep the static shell and read the session in a child component inside `<Suspense>`:
+
+```tsx
+// app/page.tsx
+import { Suspense } from 'react';
+import { auth, currentUser } from '@lumoauth/nextjs/server';
+
+export default function HomePage() {
+  return (
+    <main>
+      <h1>Home</h1>
+      <Suspense fallback={<p>Loading…</p>}>
+        <Greeting />
+      </Suspense>
+    </main>
+  );
+}
+
+async function Greeting() {
+  const { isSignedIn } = await auth();
+  if (!isSignedIn) return <a href="/api/auth/login">Sign in</a>;
+  const user = await currentUser();
+  return <p>Signed in as {user?.name ?? user?.email}</p>;
+}
+```
+
+Add `export const instant` only when `cacheComponents` is on. Without it, Next.js refuses the export: `Route segment config "instant" requires nextConfig.cacheComponents to be enabled`. Client components such as `<SignedIn>`, `<UserButton>` and the provider need neither fix, so a header in the root layout stays static.
+
+## Check permissions on the server
+
+A session proves who the user is. It does not prove what the user may do. Check a permission with the user's own access token. Treat an error as "denied".
+
+```ts
+// lib/authz.ts
+import { auth, resolveConfig } from '@lumoauth/nextjs/server';
+import { LumoAuth } from '@lumoauth/client';
+
+/** True when the signed-in user has the permission. False when signed out or on any error. */
+export async function can(permission: string): Promise<boolean> {
+  const token = (await auth()).getToken();
+  if (!token) return false;
+
+  // The same domain (US by default) and organization as the route handler.
+  const { domain, orgId } = resolveConfig();
+  const lumo = new LumoAuth({ baseUrl: domain, orgId, token });
+
+  try {
+    return await lumo.permissions.check(permission);
+  } catch {
+    return false;
+  }
+}
+```
+
+Use it in a route handler:
+
+```ts
+// app/api/reports/route.ts
+import { auth } from '@lumoauth/nextjs/server';
+import { can } from '@/lib/authz';
+
+export async function GET(): Promise<Response> {
+  const { isSignedIn } = await auth();
+  if (!isSignedIn) return Response.json({ error: 'unauthorized' }, { status: 401 });
+  if (!(await can('reports.view'))) return Response.json({ error: 'forbidden' }, { status: 403 });
+
+  return Response.json({ reports: [] });
+}
+```
+
+Use a relative import when the project has no `@/` path alias. Use the same helper in a server component (`if (!(await can('billing.manage'))) notFound();`) and in a server action before it changes data. Import `LumoAuth` from `@lumoauth/client` in server code, not from `@lumoauth/nextjs`: the main entry of `@lumoauth/nextjs` is a `'use client'` module. `<Protect>` and `usePermission()` in client components only hide interface parts; repeat each check on the server.
+
+Permission slugs such as `reports.view` are defined in the organization. For roles, groups and permission design use `lumoauth-rbac`. For relationship checks (`lumo.zanzibar.check`) and attribute policies (`lumo.abac.check`) use `lumoauth-rebac` and `lumoauth-abac`.
 
 ## Request more scopes
 

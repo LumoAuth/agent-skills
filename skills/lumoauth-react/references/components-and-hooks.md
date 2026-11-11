@@ -98,7 +98,7 @@ The user's picture, or initials when there is no picture. Shows a placeholder ic
 
 ### `<UserProfile>`
 
-Profile card with account details, security status, roles and a sign-out action.
+Profile card with account details, security status, roles and a sign-out action. The MFA row, the roles and the groups appear only when the UserInfo response holds the `mfa_enabled`, `roles` and `groups` claims (version 1.4.2 or newer; older versions show MFA as **Disabled** without the claim).
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
