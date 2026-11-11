@@ -64,10 +64,10 @@ Read the project before you write any interface: the layout, the header, pages s
 ### 1. Install
 
 ```bash
-npm install @lumoauth/nextjs@^1.4.2 @lumoauth/react@^1.4.2 @lumoauth/client@^1.4.2
+npm install @lumoauth/nextjs@^1.4.2 @lumoauth/client
 ```
 
-Version 1.4.2 or newer is required. The three packages are named so that a project with an older lock file gets the new version of each.
+Version 1.4.2 or newer is required. It brings the same version of `@lumoauth/react` and `@lumoauth/client` with it.
 
 ### 2. Set the environment variables
 
