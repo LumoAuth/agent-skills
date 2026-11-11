@@ -10,11 +10,12 @@ description: >-
   user asks to add login, authentication, sessions, an httpOnly session cookie, middleware
   protection, OAuth 2.0 / OpenID Connect with PKCE, or authorization to a Next.js app, or
   mentions @lumoauth/nextjs, NEXT_PUBLIC_LUMOAUTH_* variables, LUMOAUTH_SECRET, App Router,
-  server components or route handlers together with LumoAuth.
+  server components or route handlers together with LumoAuth. Also for app builders that
+  generate Next.js apps (v0, Bolt, Lovable) and for the callback or redirect URL of the app.
 license: MIT
 metadata:
   author: lumoauth
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # LumoAuth for Next.js
@@ -39,57 +40,52 @@ Collect these values. Ask the user for any value that you cannot find. Do not gu
 
 | Value | Example | Where it comes from |
 |---|---|---|
-| Base URL | `https://app.lumoauth.dev` (US) or `https://eu.app.lumoauth.dev` (EU) | The region of the organization |
 | Organization slug | `acme-corp` | The portal URL `/orgs/{slug}/portal`, or `lumo whoami` |
 | OAuth client ID | `lumo_...` or `client_...` | `lumo apps list` (column **Client ID**), or **Portal → Applications → the app → Credentials** |
-| App origin | `http://localhost:3000`, `https://app.example.com` | The user |
+| Region | US (default) or EU | The portal address: `https://eu.app.lumoauth.dev/...` means EU. Ask only when you cannot tell. |
 
-**The OAuth application.** Use a public client: PKCE required, no client secret. Every organization has one named **Starter App**; `lumo apps list` prints its client ID. To create another one, open `{base}/orgs/{slug}/portal/applications`, click **New application**, choose **Single-page or mobile app**, enter the redirect URI and click **Create application**.
+Do not ask for a redirect URI, a callback URL or the address of the app. The route handler receives the sign-in response at the fixed path `/api/auth/callback` and builds the full URL from the address of each request. The same code works on `localhost`, on a preview deployment and in production. The user registers that URL in LumoAuth after the app runs (step 8).
 
-The application must allow two URLs for this integration. The Starter App does not include them:
+**The OAuth application.** Use a public client: PKCE required, no client secret. Every organization has one named **Starter App**, and its client ID works here. To create another one, open `{base}/orgs/{slug}/portal/applications`, click **New application**, choose **Single-page or mobile app** and click **Create application**. Do not use `lumo apps create --type spa`: the CLI creates a confidential client. Create public clients in the portal.
 
-1. **Redirect URI** `{origin}/api/auth/callback`, for example `http://localhost:3000/api/auth/callback`. Add it on the application's **Configuration** tab under **Redirect URIs**, then click **Save configuration**. The match is exact: scheme, host, port and path.
-2. **Post-logout redirect URI** `{origin}/`, for example `http://localhost:3000/`. Add it on the same tab under **Logout → Post-logout redirect URIs**.
-
-The redirect URI can also be set with the CLI. `--redirect-uris` replaces the whole list, so read the current list first and pass every URI. Show the command to the user before you run it:
-
-```bash
-lumo apps get CLIENT_ID          # prints redirectUris
-lumo apps update CLIENT_ID --redirect-uris http://localhost:3000/auth/callback,http://localhost:3000/api/auth/callback
-```
-
-Do not use `lumo apps create --type spa` for this app. The Admin API creates a confidential client unless the request body sets `isConfidential` to `false`, and the CLI does not send that field. Create public clients in the portal.
-
-**New app instead of an existing one?** `lumo init --framework next --dir my-app --client-id CLIENT_ID` writes a starter that signs in from the browser and works with the Starter App without changes. Read [references/browser-only-mode.md](references/browser-only-mode.md) for that starter and for the difference between the two modes. The steps below add the server-side session to any App Router app, including that starter.
+**New app instead of an existing one?** `lumo init --framework next --dir my-app --client-id CLIENT_ID` writes a starter that signs in from the browser. Read [references/browser-only-mode.md](references/browser-only-mode.md) for that starter and for the difference between the two modes. The steps below add the server-side session to any App Router app, including that starter.
 
 ## Steps
 
 ### 1. Install
 
 ```bash
-npm install @lumoauth/nextjs @lumoauth/client
+npm install @lumoauth/nextjs@^1.4.1 @lumoauth/client
 ```
 
-`@lumoauth/nextjs` re-exports the components and hooks of `@lumoauth/react`. `@lumoauth/client` is listed too because server code imports the `LumoAuth` class from it in step 6.
+Version 1.4.1 or newer is required: older versions need `NEXT_PUBLIC_REDIRECT_URI` and `NEXT_PUBLIC_LUMOAUTH_DOMAIN`. `@lumoauth/nextjs` re-exports the components and hooks of `@lumoauth/react`. `@lumoauth/client` is listed too because server code imports the `LumoAuth` class from it in step 6.
 
 ### 2. Set the environment variables
 
+Three variables are required:
+
 ```bash
 # .env.local
-NEXT_PUBLIC_LUMOAUTH_DOMAIN=https://app.lumoauth.dev
 NEXT_PUBLIC_LUMOAUTH_ORG_ID=acme-corp
 NEXT_PUBLIC_LUMOAUTH_CLIENT_ID=your-client-id
-NEXT_PUBLIC_REDIRECT_URI=http://localhost:3000/api/auth/callback
 
 # Server only. Encrypts the session cookie. At least 32 characters.
 LUMOAUTH_SECRET=
 ```
 
-Generate the secret with `openssl rand -hex 32` and paste the output. Never give `LUMOAUTH_SECRET` a `NEXT_PUBLIC_` prefix: Next.js puts every `NEXT_PUBLIC_` value into the browser bundle. Check that `.env.local` is in `.gitignore`.
+One variable is optional:
+
+| Variable | Default | Set it when |
+|---|---|---|
+| `NEXT_PUBLIC_LUMOAUTH_DOMAIN` | `https://app.lumoauth.dev` (US) | The organization is in the EU region: `https://eu.app.lumoauth.dev` |
+
+Generate the secret with `openssl rand -hex 32` and paste the output. Some app builders ask for environment variables in a form, and you cannot run a command there. Then tell the user to run that command, or to use a random string of 32 characters or more from a password manager. Never give `LUMOAUTH_SECRET` a `NEXT_PUBLIC_` prefix: Next.js puts every `NEXT_PUBLIC_` value into the browser bundle. Check that `.env.local` is in `.gitignore`.
+
+Do not add `NEXT_PUBLIC_REDIRECT_URI`. It pins the app to one address and is only for a proxy that hides the public address (see [references/server-api.md](references/server-api.md#the-callback-url)). When an app builder lists the variables that the user must fill in, list the three required ones and mention the EU domain as optional.
 
 ### 3. Mount the route handler
 
-This one file adds `/api/auth/login`, `/api/auth/callback`, `/api/auth/session` and `/api/auth/logout`. Keep this exact path: the middleware and `protectPage()` redirect to `/api/auth/login`.
+This one file adds `/api/auth/login`, `/api/auth/callback`, `/api/auth/session` and `/api/auth/logout`. Keep this exact path: the middleware and `protectPage()` redirect to `/api/auth/login`, and `/api/auth/callback` is the URL that the user registers in step 8.
 
 ```ts
 // app/api/auth/[...lumoauth]/route.ts
@@ -98,7 +94,7 @@ import { createRouteHandler } from '@lumoauth/nextjs/server';
 export const { GET, POST } = createRouteHandler();
 ```
 
-The handler creates the PKCE verifier and `state`, checks `state` on the callback, exchanges the code and stores the session in the cookie `lumo_session`.
+The handler creates the PKCE verifier and `state`, sends `{origin}/api/auth/callback` as the redirect URI, checks `state` on the callback, exchanges the code and stores the session in the cookie `lumo_session`. `{origin}` is the address in the browser, read from the `X-Forwarded-Host` and `X-Forwarded-Proto` headers that Next.js sets on every request.
 
 ### 4. Add the middleware
 
@@ -162,7 +158,7 @@ A session proves who the user is. It does not prove what the user may do. Check 
 
 ```ts
 // lib/authz.ts
-import { auth } from '@lumoauth/nextjs/server';
+import { auth, resolveConfig } from '@lumoauth/nextjs/server';
 import { LumoAuth } from '@lumoauth/client';
 
 /** True when the signed-in user has the permission. False when signed out or on any error. */
@@ -170,11 +166,9 @@ export async function can(permission: string): Promise<boolean> {
   const token = (await auth()).getToken();
   if (!token) return false;
 
-  const lumo = new LumoAuth({
-    baseUrl: process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN!,
-    orgId: process.env.NEXT_PUBLIC_LUMOAUTH_ORG_ID!,
-    token,
-  });
+  // The same domain (US by default) and organization as the route handler.
+  const { domain, orgId } = resolveConfig();
+  const lumo = new LumoAuth({ baseUrl: domain, orgId, token });
 
   try {
     return await lumo.permissions.check(permission);
@@ -218,7 +212,7 @@ import { LumoAuthNextProvider } from '@lumoauth/nextjs';
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <LumoAuthNextProvider
-      domain={process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN!}
+      domain={process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN}
       orgId={process.env.NEXT_PUBLIC_LUMOAUTH_ORG_ID!}
       clientId={process.env.NEXT_PUBLIC_LUMOAUTH_CLIENT_ID!}
       afterSignOutUrl="/"
@@ -268,6 +262,8 @@ export function Header() {
 }
 ```
 
+`domain` is optional. When the variable is not set, the provider uses `https://app.lumoauth.dev`.
+
 Rules for this provider:
 
 - Start sign-in with a link to `/api/auth/login`. Do not use `<SignIn>`, `<SignInButton>`, `<RedirectToSignIn>` or `signIn()` here. Those start a sign-in in the browser, and the browser cannot write the httpOnly cookie.
@@ -277,10 +273,32 @@ Rules for this provider:
 
 The components and hooks are the ones from `@lumoauth/react`. For their props and return values use `lumoauth-react`.
 
+### 8. Register the app's address in LumoAuth
+
+Do this last, once the app runs. Tell the user these steps, with the address filled in when you know it.
+
+For each address that the app runs on (`http://localhost:3000`, a preview address, the production domain), add two URLs to the OAuth application. Open `{base}/orgs/{slug}/portal/applications`, choose the application and open the **Configuration** tab:
+
+| Field | Value | Example |
+|---|---|---|
+| **Redirect URIs** | `{origin}/api/auth/callback` | `https://my-app.vercel.app/api/auth/callback` |
+| **Logout → Post-logout redirect URIs** | `{origin}/` | `https://my-app.vercel.app/` |
+
+Click **Save configuration**. The match is exact: scheme, host, port and path. The Starter App does not include these URLs.
+
+When the address is not known in advance, for example in an app builder preview: open the app and click **Sign in**. LumoAuth shows an **Invalid Redirect URL** page. The URL to add is the `redirect_uri=` parameter in the address bar of that page (URL-encoded: `%3A%2F%2F` is `://`, `%2F` is `/`); the page also names it. Add it, then sign in again. Sign-in does not work in a preview that is shown in a frame. The LumoAuth login page does not load in a frame, and the browser does not send the session cookie there. Open the preview in its own browser tab.
+
+With the CLI, `--redirect-uris` replaces the whole list, so read the current list first and pass every URI. Show the command to the user before you run it:
+
+```bash
+lumo apps get CLIENT_ID          # prints redirectUris
+lumo apps update CLIENT_ID --redirect-uris http://localhost:3000/auth/callback,http://localhost:3000/api/auth/callback
+```
+
 ## Verify
 
 1. Run `npm run dev` and open `http://localhost:3000`. No `missing required config` error appears.
-2. Click **Sign in**. The browser goes to `{base}/orgs/{slug}/api/v1/oauth/authorize?...` and shows the organization's login page.
+2. Click **Sign in**. The browser goes to `{base}/orgs/{slug}/api/v1/oauth/authorize?...` with `redirect_uri=http://localhost:3000/api/auth/callback` and shows the organization's login page. An **Invalid Redirect URL** page means that step 8 is not done for this address.
 3. Sign in. The browser returns to the `return_to` path, and the page shows the user's email in the server-rendered HTML (view source).
 4. The browser has an httpOnly cookie named `lumo_session`. No token is in `localStorage` or `sessionStorage`.
 5. Open a protected path in a private window. The browser is redirected to `/api/auth/login?return_to=...`.
@@ -293,8 +311,11 @@ The components and hooks are the ones from `@lumoauth/react`. For their props an
 | Symptom | Cause | Fix |
 |---|---|---|
 | `@lumoauth/nextjs is missing required config: ...` | A variable from step 2 is not set, or the dev server was not restarted. | Set the variables that the message names and restart. |
+| The message names `domain` or `redirectUri` | `@lumoauth/nextjs` is older than 1.4.1. | `npm install @lumoauth/nextjs@^1.4.1`. |
 | `LUMOAUTH_SECRET must be set to at least 32 characters` | The secret is missing or short. | `openssl rand -hex 32`. |
-| LumoAuth shows a redirect URI error instead of the login page | `{origin}/api/auth/callback` is not registered, or `NEXT_PUBLIC_REDIRECT_URI` differs from it by a port, a slash or `http`/`https`. | Register the exact URI and use the same string in the variable. |
+| LumoAuth shows **Invalid Redirect URL** | `{origin}/api/auth/callback` is not registered for this address. | Add the `redirect_uri` of that page under **Configuration → Redirect URIs** (step 8). |
+| The login page does not load inside an app builder preview | The preview runs in a frame. | Open the preview in its own browser tab. |
+| After sign-in the browser goes to `http://localhost:3000` instead of the public address | A proxy in front of the app sends neither `X-Forwarded-Host` nor the public `Host` header. | Set `NEXT_PUBLIC_REDIRECT_URI` to the public callback URL, for example `https://app.example.com/api/auth/callback`. |
 | After sign-in the user lands on `/` signed out | The callback failed: `state` did not match, the sign-in took longer than 10 minutes, or the code exchange was refused. | Start again from `/api/auth/login`. Check the client ID and the redirect URI. |
 | After sign-out the browser does not come back to the app | `{origin}/` is not a post-logout redirect URI of the application. | Add it under **Configuration → Logout**. |
 | `getToken()` returns `null` while `isSignedIn` is `true` | The access token expired and the middleware did not run on this route. | Widen the `matcher` so that it covers the route. |

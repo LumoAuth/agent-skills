@@ -66,9 +66,10 @@ npm install @lumoauth/nextjs
 
 ```bash
 # .env.local
-NEXT_PUBLIC_LUMOAUTH_DOMAIN=https://app.lumoauth.dev
 NEXT_PUBLIC_LUMOAUTH_ORG_ID=acme-corp
 NEXT_PUBLIC_LUMOAUTH_CLIENT_ID=your-client-id
+# EU region only. The code falls back to https://app.lumoauth.dev (US).
+# NEXT_PUBLIC_LUMOAUTH_DOMAIN=https://eu.app.lumoauth.dev
 ```
 
 ```tsx
@@ -81,7 +82,7 @@ import { LumoAuthProvider } from '@lumoauth/nextjs';
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <LumoAuthProvider
-      domain={process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN!}
+      domain={process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN || 'https://app.lumoauth.dev'}
       orgId={process.env.NEXT_PUBLIC_LUMOAUTH_ORG_ID!}
       clientId={process.env.NEXT_PUBLIC_LUMOAUTH_CLIENT_ID!}
       afterSignInUrl="/dashboard"
@@ -204,7 +205,7 @@ export async function GET(request: Request): Promise<Response> {
   if (!token) return Response.json({ error: 'unauthorized' }, { status: 401 });
 
   const lumo = new LumoAuth({
-    baseUrl: process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN!,
+    baseUrl: process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN || 'https://app.lumoauth.dev',
     orgId: process.env.NEXT_PUBLIC_LUMOAUTH_ORG_ID!,
     token,
   });
@@ -228,7 +229,7 @@ For every component, hook and provider prop in this mode, use `lumoauth-react`.
 ## Move from browser-only mode to the server session
 
 1. Register `{origin}/api/auth/callback` as a redirect URI and `{origin}/` as a post-logout redirect URI.
-2. Add `NEXT_PUBLIC_REDIRECT_URI` and `LUMOAUTH_SECRET` to `.env.local`.
+2. Install `@lumoauth/nextjs@^1.4.1` and add `LUMOAUTH_SECRET` to `.env.local`. Do not add `NEXT_PUBLIC_REDIRECT_URI`: the route handler derives the callback URL from each request.
 3. Add the route handler and the middleware (steps 3 and 4 of `SKILL.md`).
 4. Replace `LumoAuthProvider` with `LumoAuthNextProvider` and remove its `redirectUri` prop.
 5. Replace `<SignIn />`, `<SignInButton>` and `<RedirectToSignIn />` with links to `/api/auth/login`, or with `protectPage()` in server components.
@@ -247,7 +248,7 @@ import { LumoAuthProvider } from '@lumoauth/react';
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <LumoAuthProvider
-      domain={process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN!}
+      domain={process.env.NEXT_PUBLIC_LUMOAUTH_DOMAIN || 'https://app.lumoauth.dev'}
       orgId={process.env.NEXT_PUBLIC_LUMOAUTH_ORG_ID!}
       clientId={process.env.NEXT_PUBLIC_LUMOAUTH_CLIENT_ID!}
     >

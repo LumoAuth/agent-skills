@@ -1,6 +1,6 @@
 # @lumoauth/nextjs server API
 
-Reference for `@lumoauth/nextjs/server` (package version 1.4.0). The entry is marked `server-only`: a client component that imports it fails the build.
+Reference for `@lumoauth/nextjs/server` (package version 1.4.1). The entry is marked `server-only`: a client component that imports it fails the build.
 
 ## Contents
 
@@ -10,6 +10,7 @@ Reference for `@lumoauth/nextjs/server` (package version 1.4.0). The entry is ma
 - [currentUser()](#currentuser)
 - [protectPage()](#protectpage)
 - [Routes from createRouteHandler()](#routes-from-createroutehandler)
+- [The callback URL](#the-callback-url)
 - [lumoAuthMiddleware()](#lumoauthmiddleware)
 - [Request more scopes](#request-more-scopes)
 - [Sessions and access tokens](#sessions-and-access-tokens)
@@ -40,10 +41,10 @@ Every server function accepts an optional config object. A value in the object o
 
 | Option | Environment variable | Required | Default | Description |
 |---|---|---|---|---|
-| `domain` | `NEXT_PUBLIC_LUMOAUTH_DOMAIN` | yes | none | `https://app.lumoauth.dev` or `https://eu.app.lumoauth.dev` |
+| `domain` | `NEXT_PUBLIC_LUMOAUTH_DOMAIN` | no | `https://app.lumoauth.dev` | The region. EU: `https://eu.app.lumoauth.dev` |
 | `orgId` | `NEXT_PUBLIC_LUMOAUTH_ORG_ID` | yes | none | Organization slug |
 | `clientId` | `NEXT_PUBLIC_LUMOAUTH_CLIENT_ID` | yes | none | OAuth client ID |
-| `redirectUri` | `NEXT_PUBLIC_REDIRECT_URI` | yes | none | Absolute callback URL, `{origin}/api/auth/callback`, registered on the application |
+| `redirectUri` | `NEXT_PUBLIC_REDIRECT_URI` | no | `{origin}/api/auth/callback` of each request | Pins the callback URL and the origin of every redirect back to the app. See [The callback URL](#the-callback-url). |
 | `secret` | `LUMOAUTH_SECRET` | yes | none | Encrypts the session cookie. At least 32 characters. |
 | `clientSecret` | `LUMOAUTH_CLIENT_SECRET` | no | none | Sent on the code exchange when it is set. A public PKCE client leaves it out. |
 | `afterSignInUrl` | none | no | `'/'` | Target after sign-in when the login link has no `return_to` |
@@ -51,7 +52,7 @@ Every server function accepts an optional config object. A value in the object o
 | `scope` | none | no | `'openid profile email'` | OAuth scopes that the login route requests |
 | `sessionMaxAge` | none | no | `2592000` (30 days) | Session lifetime in seconds |
 
-A missing required value throws `@lumoauth/nextjs is missing required config: <names>`.
+A missing required value throws `@lumoauth/nextjs is missing required config: <variable names>`. An empty variable counts as unset.
 
 When the app sets options in code, pass the same object to every function:
 
@@ -87,6 +88,8 @@ export const config = {
 ```
 
 `afterSignOutUrl` must be a path. The logout route sends `{origin}{afterSignOutUrl}` as `post_logout_redirect_uri`, and LumoAuth redirects there only when that exact URL is a post-logout redirect URI of the application.
+
+`resolveConfig()` returns the merged values, with the default domain filled in. Server code that needs the domain or the organization slug, such as a `LumoAuth` client, reads them from it: `const { domain, orgId } = resolveConfig();`.
 
 ## auth()
 
@@ -146,7 +149,25 @@ Redirects a signed-out visitor to `/api/auth/login?return_to=<returnTo>`. The lo
 | `/api/auth/session` | GET | Returns `{ accessToken, idToken, expiresAt }` for `LumoAuthNextProvider`, or `{ accessToken: null, expiresAt: null }` without a session. It never returns the refresh token. |
 | `/api/auth/logout` | GET, POST | Revokes the access token (best effort), clears the cookie, and redirects to the LumoAuth logout endpoint with `post_logout_redirect_uri` and `id_token_hint`. |
 
-Both cookies are `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Secure` when the request uses `https`.
+Both cookies are `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Secure` when the public origin uses `https`.
+
+## The callback URL
+
+The login route sends `{origin}/api/auth/callback` as `redirect_uri`, and the callback repeats the same value in the token request. `{origin}` is the address in the browser:
+
+1. `NEXT_PUBLIC_REDIRECT_URI` (or the `redirectUri` option), when it is set. Its origin is then used for every redirect back to the app.
+2. Otherwise the first value of `X-Forwarded-Host` (or `Host`) and of `X-Forwarded-Proto`. Next.js sets both headers on every request. `request.url` is not used: behind a proxy it holds the address that Next.js listens on, such as `http://localhost:3000`.
+
+So one build signs in on every address, and each address needs its own entries on the application:
+
+| Configuration field | Value |
+|---|---|
+| **Redirect URIs** | `{origin}/api/auth/callback` |
+| **Logout → Post-logout redirect URIs** | `{origin}{afterSignOutUrl}`, by default `{origin}/` |
+
+LumoAuth compares redirect URIs exactly and accepts no wildcards. An unregistered address gets the **Invalid Redirect URL** page; the `redirect_uri` parameter of that page is the URL to add.
+
+A forged `X-Forwarded-Host` cannot send a code elsewhere: LumoAuth refuses any redirect URI that is not registered. Set `NEXT_PUBLIC_REDIRECT_URI` only when a proxy in front of the app sends neither `X-Forwarded-Host` nor the public `Host` header.
 
 ## lumoAuthMiddleware()
 
@@ -161,11 +182,11 @@ lumoAuthMiddleware({
 |---|---|---|---|
 | `protect` | `Array<string \| RegExp>` or `(req: NextRequest) => boolean` | `[]` | Paths that need a session. In a string, `/:path*` matches the path and everything below it, and `*` matches any characters. Everything else is public. |
 | `refresh` | `boolean` | `true` | Replace the access token when it expires within 60 seconds. |
-| any config value | | | `domain`, `orgId`, `clientId`, `secret` and the others from the table above |
+| any config value | | | `orgId`, `clientId`, `secret` and the others from the table above |
 
 What it does on each request:
 
-1. No live session and the path is protected: redirect to `/api/auth/login?return_to=<path and query>`.
+1. No live session and the path is protected: redirect to `{origin}/api/auth/login?return_to=<path and query>`, on the public origin described in [The callback URL](#the-callback-url).
 2. No live session and the path is public: continue. An unusable cookie is deleted.
 3. Live session with a fresh token: continue.
 4. Live session with a stale token: call the token endpoint with the refresh token, store the new session in the cookie, and forward it to the page in the request header `x-lumo-session`, so `auth()` returns the new token in the same request.
@@ -245,7 +266,7 @@ The API at `https://api.example.com` must validate the token: signature, issuer,
 ## Production checklist
 
 - Register `https://app.example.com/api/auth/callback` as a redirect URI and `https://app.example.com/` as a post-logout redirect URI. Remove the `localhost` entries from a production application.
-- Set the five variables in the hosting environment. `NEXT_PUBLIC_REDIRECT_URI` must be the production callback URL. `NEXT_PUBLIC_` values are fixed at build time.
+- Set `NEXT_PUBLIC_LUMOAUTH_ORG_ID`, `NEXT_PUBLIC_LUMOAUTH_CLIENT_ID` and `LUMOAUTH_SECRET` in the hosting environment, and `NEXT_PUBLIC_LUMOAUTH_DOMAIN` for the EU region. `NEXT_PUBLIC_` values are fixed at build time.
 - Use a separate `LUMOAUTH_SECRET` for each environment and keep it in the secret store of the host.
 - Serve the app over `https`, so the cookies get the `Secure` attribute.
 - Keep the middleware matcher wide enough to cover every page and API route that calls `getToken()`.
