@@ -249,7 +249,7 @@ export async function askLumoAuth(action: string): Promise<boolean> {
 
 The first bridge call links the AAuth registration to an agent record (`agt_…`) in the registry.
 Conditional access policies and the agent's budget apply to the bridge: `403 access_policy_denied`,
-`429 access_denied` ("Agent budget exceeded"), `429 rate_limit_exceeded` (30 requests per minute
+`429 budget_exceeded` ("Agent budget exceeded"), `429 rate_limit_exceeded` (30 requests per minute
 per agent). An invalid, expired or revoked agent token, or a missing or replayed signature, is
 `401 invalid_grant`.
 

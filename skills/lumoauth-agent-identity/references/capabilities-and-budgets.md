@@ -65,7 +65,8 @@ Response:
 Rules:
 
 - When the token was requested with a narrower `scope`, the action must also be inside that scope.
-- Each call counts against the agent's budget. A spent budget answers `429`.
+- Each call counts against the agent's budget. A spent budget answers `429 budget_exceeded` (see
+  "Budget policy" below).
 - Allowed calls are not written to the audit log. Denials are.
 - In `context`, the names `ip`, `userAgent`, `requestMethod` and `requestPath` always describe the
   request that LumoAuth received. A value that you send under one of those names is kept under
@@ -115,9 +116,9 @@ Python, Go, .NET and Java cache the agent info. For a live budget reading call
 
 ## Budget policy
 
-Set the budget in step 3 of the registration wizard, or with `budgetPolicy` in the Admin API
-(`POST` or `PATCH /orgs/{orgId}/api/v1/admin/agents[/{agentId}]`). Show the user the request before
-you send it.
+Set the budget in step 3 of the registration wizard, on the agent's edit page, or with
+`budgetPolicy` in the Admin API (`POST` or `PATCH /orgs/{orgId}/api/v1/admin/agents[/{agentId}]`).
+Show the user the request before you send it.
 
 ```json
 {
@@ -135,6 +136,31 @@ you send it.
 | `max_tokens_per_hour`, `max_tokens_per_day` | Model tokens | Usage reports |
 | `max_cost_per_day_usd`, `hard_limit` | Cost in USD per day | Usage reports |
 | `max_cost_per_month_usd` | Cost in USD per month | Usage reports |
+| `max_steps`, `timeout_seconds` | Steps and seconds for one task | Not counted. LumoAuth stores them and returns them in UserInfo; the agent's own code applies them |
+
+Rules for `budgetPolicy` in the Admin API:
+
+- An update replaces the whole policy. Send every limit that the agent keeps. `{}` or `null`
+  removes the budget.
+- Each value is a number greater than zero: whole numbers for calls, tokens, steps and seconds,
+  an amount in USD for cost. Leave a key out for no limit.
+- An unknown key gets `400`, and the message lists the keys that exist. Do not invent keys.
+
+A save of the agent's edit page in the portal changes only the limits whose fields were changed.
+The page also shows the usage in the current hour, day and month.
+
+When a limit is reached, every call that counts gets the same answer until that window ends:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 1050
+
+{"error": "budget_exceeded", "error_description": "Agent budget exceeded"}
+```
+
+`Retry-After` is the number of seconds until the spent window ends. It can be hours or days, so do
+not sleep on it in a request path: stop the task, or wait in a scheduler. The SDKs raise their rate
+limit error for this answer, with the header in its retry-after field.
 
 Windows are UTC hours, days and months. `budget_policy` in UserInfo returns the limits that are
 set, the usage (`api_calls_this_hour`, `api_calls_today`, `tokens_used_this_hour`,

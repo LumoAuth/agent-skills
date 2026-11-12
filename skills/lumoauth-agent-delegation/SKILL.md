@@ -304,7 +304,7 @@ The response has `access_token`, `token_type`, `expires_in`, `scope` and
 | The API refuses the token: wrong audience | `resource` was left out, so `aud` is the agent ID. Or `audience` was sent instead | Send `resource` with the API's URL |
 | `400 invalid_target` | More than one `resource`, or a malformed one | One absolute `https` URL without a fragment. Request one token per API |
 | `invalid_dpop_proof` | The agent's token or the user's token is DPoP-bound, or the agent must use DPoP | Give the agent a DPoP signer (`dpop` option in JS, Python and Go); see `lumoauth-agent-identity` |
-| `429` with `access_denied` | The agent's budget is spent. An exchange counts as one call | See budgets in `lumoauth-agent-identity` |
+| `429` with `budget_exceeded` | The agent's budget is spent. An exchange counts as one call. `Retry-After` gives the seconds until the spent window ends | See budgets in `lumoauth-agent-identity` |
 | The SDK consent helpers (`getConsentUrl`, `get_consent_url`, `handleConsentCallback`) fail with "Unknown Application" or `unsupported_grant_type` | They start an authorization code flow with the agent's ID as `client_id`. An agent is not an OAuth application | Sign the user in through an application (an OAuth client) and pass the access token with `setUserToken` / `set_user_token` |
 
 ## Related skills

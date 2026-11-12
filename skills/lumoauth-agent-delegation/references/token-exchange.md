@@ -56,7 +56,7 @@ a new delegated token with a current user token when the old one expires.
 | Chain depth | At most 5 actors | `400 invalid_request` |
 | Key binding | A DPoP-bound subject or actor token needs a DPoP proof from the key that it is bound to | `invalid_dpop_proof` |
 | Conditional access | The agent's access policies are checked | `403 access_denied` |
-| Budget | One call against the agent's budget | `429 access_denied` |
+| Budget | One call against the agent's budget | `429 budget_exceeded` |
 
 Special-purpose tokens are never accepted as subject or actor: just-in-time permission tokens,
 logout tokens, transaction tokens, identity assertions and test tokens from the portal.

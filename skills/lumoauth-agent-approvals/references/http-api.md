@@ -176,7 +176,7 @@ One approval yields one token. `expires_in` never passes the end of the task.
 | 403 | `request_not_redeemable` | The approval can no longer become a token: exchanged too late, task completed or suspended, agent or organization inactive, or the on-behalf-of user deactivated. Request again |
 | 404 | `request_not_found`, `task_not_found` | Unknown id in this organization |
 | 429 | `rate_limit_exceeded` | Too many calls. Honour `Retry-After` when present |
-| 429 | `access_denied` with "Agent budget exceeded" | The agent's budget policy is spent |
+| 429 | `budget_exceeded` with "Agent budget exceeded" | The agent's budget policy is spent. `Retry-After` gives the seconds until the spent window ends |
 
 Errors are flat: `{"error": "...", "error_description": "..."}`.
 

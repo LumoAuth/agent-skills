@@ -140,7 +140,7 @@ The default audience is the agent's own URL, which is also the prefix of the att
 | 403 | `access_policy_denied` | The token verified, but a conditional access policy denied the agent. `reason` names the rule |
 | 400 | `missing_attestation_token`, `invalid_json`, `invalid_scope` | The request body is wrong |
 | 429 | `rate_limit_exceeded` | More than 30 attestations per minute from one IP address or for one agent. Honour `Retry-After` |
-| 429 | `budget_exceeded` | The agent's budget is spent |
+| 429 | `budget_exceeded` | The agent's budget is spent. `Retry-After` gives the seconds until the spent window ends |
 
 To find the cause of `attestation_rejected`, ask an admin to open the audit log in the portal and
 filter for `agent.attestation.rejected`. The `reason` in the event names the failing check
