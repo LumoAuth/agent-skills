@@ -224,7 +224,8 @@ Read [references/custom-login-ui.md](references/custom-login-ui.md) only when th
 | "An account with this email already exists" on a first social sign-in | The existing account has a password, a role, a second factor or another sign-in source, so it is not linked by email | The user signs in with the usual method and links the provider at `/account/security` |
 | "Check your email to finish setting up your account" after a social sign-in | The provider did not confirm the email address | The user opens the emailed link. For Microsoft work accounts see the reference file. |
 | Password policy fields disappeared after an API update | A partial `password_policy` object replaced the stored one | Send the complete object |
-| `404` from `POST /orgs/{orgId}/magic-link` | Magic link login is off for the organization | Turn it on (step 3) |
+| `404` from `POST /orgs/{orgId}/magic-link` or `magic_link_disabled` from `POST /orgs/{orgId}/api/v1/oauth/magic-link` | Magic link login is off for the organization | Turn it on (step 3) |
+| `403` `origin_not_allowed` from `POST /orgs/{orgId}/api/v1/oauth/magic-link` | The origin of the app is not listed for the application | Add it under **Browser CORS origins** of the application |
 | "Invalid credentials" right after sign-up | The account does not exist until the form behind the emailed link is submitted | Finish the sign-up form from the email |
 
 More symptoms, including OAuth errors in the app (`invalid_client`, `invalid_grant`, `state` mismatch), are in [references/troubleshooting.md](references/troubleshooting.md).

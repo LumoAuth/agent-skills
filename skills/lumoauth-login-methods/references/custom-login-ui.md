@@ -146,9 +146,11 @@ export function EmailStep({ onContinue }: { onContinue: (email: string, magicLin
 
 ## Magic link: `requestMagicLink` and `useMagicLink`
 
-`requestMagicLink({ email, redirectUri? })` posts a form to `POST /orgs/{orgId}/magic-link` with `email` and, when `redirectUri` is set, `_target_path`. It resolves to `{ sent: boolean }` and throws `LumoAuthNetworkError` when the request cannot be made.
+These calls need version 1.5.0 or later of the JavaScript SDK. Earlier versions post to the form endpoint of the hosted page, which refuses them, and no email is sent.
 
-`useMagicLink()` returns `{ sendMagicLink, isLoading, isSent, error, reset }`. `sendMagicLink(email, redirectUri?)` calls `requestMagicLink`.
+`requestMagicLink({ email, returnTo?, captchaToken? })` posts JSON to `POST /orgs/{orgId}/api/v1/oauth/magic-link` with `email`, the configured `client_id` and, when set, `return_to` and `captcha_token`. It resolves to `{ sent: true }` when the server accepts the request. It throws `LumoAuthApiError` when the server refuses it (`code` is the reason) and `LumoAuthNetworkError` when the request cannot be made.
+
+`useMagicLink()` returns `{ sendMagicLink, isLoading, isSent, error, errorCode, reset }`. `sendMagicLink(email, returnTo?, { captchaToken? }?)` calls `requestMagicLink`. Without `returnTo`, the user returns to the page that the form is on, and `LumoAuthProvider` finishes the sign-in there. With your own `returnTo`, call `signIn()` on that page.
 
 ```tsx
 import { useState } from 'react';
@@ -179,10 +181,12 @@ export function MagicLinkForm() {
 
 Limits that the agent must respect:
 
-- The endpoint answers `404` when magic link login is off for the organization.
+- The endpoint answers `404` with `magic_link_disabled` when magic link login is off for the organization.
 - `sent: true` and `isSent` do not prove that an email was sent. The server gives the same answer for every address, known or not.
-- The server accepts this form post only with the CSRF token of the hosted login page and from the same origin as that page. The SDK call sends no such token. A call from an app on another origin is therefore sent back to the login page and no email is sent, while the call can still report success. Test with a real mailbox before relying on these calls. When no email arrives, use the hosted flow: redirect the user to the authorization endpoint, where the hosted page shows the magic link button.
-- When the organization has a CAPTCHA on the magic link step, only the hosted page can pass it.
+- A request from a browser must come from an origin that is listed under **Browser CORS origins** of the application. Otherwise the server answers `403` with `origin_not_allowed`.
+- `returnTo` is an absolute `https` URL (`http` only on `localhost`) of at most 1,024 characters. Its origin must be a listed origin or the origin of a redirect URI of the application. Otherwise the server answers `400` with `invalid_return_to`.
+- The link signs the user in at LumoAuth, not in the app. The app gets its tokens from the normal authorization request that it starts on the `returnTo` page. That request completes without a login page.
+- When the organization has a CAPTCHA on the magic link step, render the widget in the form and pass its token as `captchaToken`. Without it the server answers `400` with `captcha_required`.
 
 ## Password: `loginWithPassword`
 
@@ -211,7 +215,7 @@ For a stack without the JavaScript SDK. All are relative to the region base URL.
 | Endpoint | Body | Response |
 |---|---|---|
 | `POST /orgs/{orgId}/check-email` | Form: `email` | JSON: `exists`, `has_push_device`, `has_passkey`, `magic_link_enabled`, `passkey_enabled`, `password_enabled`, `masked_email`, `sso_url`, and the `push_*_url` fields when push is available. `429` when rate limited. |
-| `POST /orgs/{orgId}/magic-link` | Form: `email`, optional `_target_path`, plus the hosted page's CSRF token | HTML "Check your inbox" page |
+| `POST /orgs/{orgId}/api/v1/oauth/magic-link` | JSON: `email`, `client_id`, optional `return_to` and `captcha_token` | JSON: `{"status": "sent"}`. An error answers with `error` and `message` |
 | `POST /orgs/{orgId}/api/v1/oauth/login/json` | JSON: `email`, `password` | JSON: `status`, and `challenge_url` when `status` is `mfa_required` |
 
 `sso_url` is set when an enterprise connection claims the email domain. Send the browser there instead of showing a password field. See `lumoauth-enterprise-sso`.

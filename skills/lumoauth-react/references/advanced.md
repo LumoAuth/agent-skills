@@ -265,6 +265,8 @@ export function MagicLinkForm() {
 
 The response never tells whether the account exists. Word the confirmation the same way.
 
+The hook needs `@lumoauth/react` 1.5.0 or later, magic link login turned on for the organization, and the origin of the app under **Browser CORS origins** of the application. The user opens the link, confirms on the LumoAuth page and returns to the page with the form. `LumoAuthProvider` then finishes the sign-in by itself. When the server refuses the request, `error` holds the message and `errorCode` the reason, for example `origin_not_allowed` or `captcha_required`.
+
 `useEmailFirst().checkEmail(email)` returns an `EmailCheckResult`:
 
 | Field | Type | Meaning |

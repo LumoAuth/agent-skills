@@ -72,7 +72,7 @@ Placements:
 | **Sign-in** | The password step, the email-first account check, push-approval completion, and the JSON login endpoint |
 | **Registration** | The email step of self-service sign-up (`/orgs/{orgId}/register`) |
 | **Forgot password** | The reset-link request |
-| **Magic link** | The magic-link request form |
+| **Magic link** | The magic-link request form, and the JSON request of an app's own form (`POST …/oauth/magic-link`, token in `captcha_token`) |
 
 Passkey sign-in is never challenged.
 
