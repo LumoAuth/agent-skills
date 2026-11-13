@@ -10,9 +10,9 @@
 # LumoAuth Agent Skills
 
 **Teach your coding agent to add sign-in, access control and agent identity with LumoAuth.**<br>
-44 skills for Claude Code, Cursor, Codex, GitHub Copilot and every other agent that supports Agent Skills.
+45 skills for Claude Code, Cursor, Codex, GitHub Copilot and every other agent that supports Agent Skills.
 
-[![Skills: 44](https://img.shields.io/badge/skills-44-111)](#skills)
+[![Skills: 45](https://img.shields.io/badge/skills-45-111)](#skills)
 [![Format: Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-111)](https://agentskills.io/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-111)](LICENSE)
 
@@ -53,11 +53,32 @@ You never need to name a skill. Your agent reads the task and loads the skill th
 | Make the agent ask for approval on my phone before it sends a payment | [`lumoauth-agent-approvals`](skills/lumoauth-agent-approvals) |
 | Add LumoAuth to the tool calls of this LangGraph agent | [`lumoauth-agent-frameworks`](skills/lumoauth-agent-frameworks) |
 | Protect this FastMCP server with LumoAuth | [`lumoauth-mcp-server`](skills/lumoauth-mcp-server) |
+| Create an application in my LumoAuth organization for this app and store the client ID | [`lumoauth-mcp-management`](skills/lumoauth-mcp-management) |
 | Verify LumoAuth webhooks in this Express app | [`lumoauth-webhooks`](skills/lumoauth-webhooks) |
 | Move our users from Auth0 to LumoAuth | [`lumoauth-migrate`](skills/lumoauth-migrate) |
 
 > [!TIP]
 > Not sure where to begin? Ask your agent to **use `lumoauth-getting-started`**. It collects the values that every integration needs, checks your organization and points to the right skill for the task.
+
+## Connect your organization
+
+The skills teach your agent how LumoAuth works. The **LumoAuth MCP server** lets the agent act in your organization: create an application, add a user, register an AI agent or read the audit log, with no API key. Add it once:
+
+| Agent | Run |
+|---|---|
+| Claude Code | `claude mcp add --transport http lumoauth https://app.lumoauth.dev/mcp`, then `/mcp` |
+| Codex | `codex mcp add lumoauth --url https://app.lumoauth.dev/mcp`, then `codex mcp login lumoauth` |
+| opencode | `opencode mcp add lumoauth --url https://app.lumoauth.dev/mcp`, then `opencode mcp auth lumoauth` |
+
+For an organization in the EU region, use `https://eu.app.lumoauth.dev/mcp`. You sign in to your organization in the browser and choose what the agent may read and change. The [`lumoauth-mcp-management`](skills/lumoauth-mcp-management) skill has the steps for Cursor, VS Code and Claude on the web, and the [documentation](https://docs.lumoauth.dev/mcp-server) lists every tool.
+
+In Claude Code you can install the skills and the MCP server together as one plugin:
+
+```text
+/plugin install lumoauth --marketplace lumoauth/agent-skills
+```
+
+The plugin asks for the MCP address of your region. The default is the US region.
 
 ## How the skills work with you
 
@@ -77,7 +98,7 @@ You never need to name a skill. Your agent reads the task and loads the skill th
 | Install for Claude Code only | `npx skills add lumoauth/agent-skills -a claude-code` |
 | Update the installed skills | `npx skills update` |
 
-Installing all 44 skills is cheap. At startup your agent reads only the name and the description of each skill. It loads the full instructions when a task matches, and it opens the reference files only when it needs them.
+Installing all 45 skills is cheap. At startup your agent reads only the name and the description of each skill. It loads the full instructions when a task matches, and it opens the reference files only when it needs them.
 
 <details>
 <summary><b>Install without the skills CLI</b></summary>
@@ -185,12 +206,13 @@ Give an agent its own identity, let it act for a user, ask a person for approval
 
 ### MCP
 
-Add OAuth to an MCP server and call a protected MCP server.
+Add OAuth to an MCP server, call a protected MCP server, and manage your organization through the LumoAuth MCP server.
 
 | Skill | Use it to |
 |---|---|
 | [`lumoauth-mcp-server`](skills/lumoauth-mcp-server) | Add OAuth to an MCP server with `lumoauth-fastmcp` or `@lumoauth/mcp`, and authorize each tool call |
 | [`lumoauth-mcp-client`](skills/lumoauth-mcp-client) | Call a protected MCP server from an agent or app |
+| [`lumoauth-mcp-management`](skills/lumoauth-mcp-management) | Connect the LumoAuth MCP server to your agent and manage users, applications, AI agents and more with tool calls |
 
 ### Operations
 

@@ -40,6 +40,8 @@ Do not use this skill for:
 - A webhook receiver (signature verification, retries): use `lumoauth-webhooks`.
 - A move from Auth0, Clerk, Okta, Cognito or Firebase Auth: use `lumoauth-migrate`.
 - A choice of SDK or a first project: use `lumoauth-getting-started`.
+- Changes that the agent makes itself with tool calls, when the LumoAuth MCP server is
+  connected to the agent: use `lumoauth-mcp-management`.
 
 ## Before you start
 
@@ -280,6 +282,7 @@ version. When this skill and `--help` disagree, follow `--help`.
 
 ## Related skills
 
+- `lumoauth-mcp-management`: the same resources as tool calls of the LumoAuth MCP server.
 - `lumoauth-admin-api`: the HTTP API behind these commands, API keys and scopes, the
   generated API clients, configuration as code in CI.
 - `lumoauth-webhooks`: verify and process the events that `lumo webhooks` subscribes to.

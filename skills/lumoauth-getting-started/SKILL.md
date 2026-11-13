@@ -54,7 +54,7 @@ Look in the project (`.env*` files, config files) before asking. Ask the user fo
 |---|---|
 | Organization slug | The user. It is the `{orgId}` in the portal URL. `lumo whoami` prints it when the CLI is logged in. |
 | Base URL (region) | `https://app.lumoauth.dev` unless the organization is in the EU region. |
-| Client ID | Portal → **Applications** (`/orgs/{orgId}/portal/applications`), or `lumo apps list`. The portal's **Get started → Quickstarts** page shows snippets with the organization's real values. Create a browser or mobile (public) application in the portal: choose **Single-page or mobile app**. |
+| Client ID | Portal → **Applications** (`/orgs/{orgId}/portal/applications`), or `lumo apps list`, or the `list_applications` tool when the LumoAuth MCP server is connected (see `lumoauth-mcp-management`). The portal's **Get started → Quickstarts** page shows snippets with the organization's real values. Create a browser or mobile (public) application in the portal: choose **Single-page or mobile app**. |
 | Client secret | Shown once when a **Web application** or **Machine to machine** application is created. Server-side only. |
 | Redirect URI | Each framework integration has its own default callback path; the framework skill states it. It must be registered on the application exactly. Plain `http` is accepted on `localhost` for development. The scaffolds use `http://localhost:3000/auth/callback`. |
 | API key (`lmk_...`) | Portal → **Applications & developer tools → API keys** (`/orgs/{orgId}/portal/settings/api-keys`). Shown once. Sent as `X-API-Key`. |
@@ -131,6 +131,7 @@ Then continue in the matching skill (`lumoauth-nextjs`, `lumoauth-express`, `lum
 
 | The user wants to | Skill |
 |---|---|
+| Let the agent itself create and change applications, users, agents and more, with tool calls of the LumoAuth MCP server | `lumoauth-mcp-management` |
 | Manage the organization from a terminal or CI | `lumoauth-cli` |
 | Call the Admin API, use a generated API client, keep configuration as code | `lumoauth-admin-api` |
 | Configure passwords, magic links, email-first login, social login | `lumoauth-login-methods` |

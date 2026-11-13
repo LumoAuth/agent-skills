@@ -36,6 +36,8 @@ resources has an Admin API endpoint.
 Do not use this skill for:
 
 - One-off changes from a terminal: use `lumoauth-cli` (`lumo users list`, `lumo api`).
+- One-off changes that the agent makes itself, with no API key, when the LumoAuth MCP
+  server is connected to the agent: use `lumoauth-mcp-management`.
 - Sign-in, tokens and sessions in an app: use the framework skill or `lumoauth-oauth-oidc`.
 - Validating access tokens in the user's own API: use `lumoauth-api-protection`.
 - Permission checks at request time (`/authz/check`): use `lumoauth-authorization`.
@@ -336,6 +338,7 @@ variant, and what cannot be managed through the API.
 
 ## Related skills
 
+- `lumoauth-mcp-management`: the same resources as tool calls of the LumoAuth MCP server.
 - `lumoauth-cli`: the `lumo` commands that wrap this API, and `lumo api` for raw calls.
 - `lumoauth-node-backend`, `lumoauth-python`: the SDKs whose `lumo.api` and `client.api`
   expose the generated client.

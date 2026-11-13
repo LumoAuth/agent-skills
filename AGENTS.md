@@ -25,7 +25,13 @@ scripts/
   validate-skills.mjs     # Checks every skill against the Agent Skills spec
   build-discovery-index.mjs
 skills.sh.json            # Groupings shown on skills.sh
+.claude-plugin/
+  plugin.json             # Claude Code plugin: every skill plus the LumoAuth MCP server
+  marketplace.json        # Lets `/plugin install lumoauth --marketplace lumoauth/agent-skills` work
+  icon.png                # Listing icon, 1024 x 1024
 ```
+
+The plugin manifest states the number of skills in its `description`. Update it, and the counts in `README.md`, when a skill is added or removed.
 
 ## Creating or editing a skill
 

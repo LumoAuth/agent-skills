@@ -1,0 +1,37 @@
+{
+  "name": "lumoauth",
+  "version": "1.0.0",
+  "description": "Manage a LumoAuth organization from your coding agent and add sign-in, access control and AI agent identity to your apps. Bundles the LumoAuth MCP server and 45 skills.",
+  "author": {
+    "name": "LumoAuth",
+    "url": "https://lumoauth.dev"
+  },
+  "homepage": "https://docs.lumoauth.dev/mcp-server",
+  "privacyPolicyUrl": "https://lumoauth.dev/legal/privacy-policy",
+  "repository": "https://github.com/lumoauth/agent-skills",
+  "license": "MIT",
+  "keywords": [
+    "lumoauth",
+    "authentication",
+    "oauth",
+    "openid-connect",
+    "identity",
+    "mcp",
+    "ai-agents"
+  ],
+  "userConfig": {
+    "mcp_url": {
+      "type": "string",
+      "title": "LumoAuth MCP address",
+      "description": "The address of the LumoAuth MCP server for the region of your organization: https://app.lumoauth.dev/mcp (US) or https://eu.app.lumoauth.dev/mcp (EU).",
+      "default": "https://app.lumoauth.dev/mcp",
+      "required": false
+    }
+  },
+  "mcpServers": {
+    "lumoauth": {
+      "type": "http",
+      "url": "${user_config.mcp_url}"
+    }
+  }
+}

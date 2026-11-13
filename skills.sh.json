@@ -81,10 +81,11 @@
     },
     {
       "title": "MCP",
-      "description": "Add OAuth to an MCP server and call a protected MCP server.",
+      "description": "Add OAuth to an MCP server, call a protected MCP server, and manage your organization through the LumoAuth MCP server.",
       "skills": [
         "lumoauth-mcp-server",
-        "lumoauth-mcp-client"
+        "lumoauth-mcp-client",
+        "lumoauth-mcp-management"
       ]
     },
     {

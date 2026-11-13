@@ -1,0 +1,17 @@
+{
+  "name": "lumoauth",
+  "owner": {
+    "name": "LumoAuth",
+    "url": "https://lumoauth.dev"
+  },
+  "metadata": {
+    "description": "The LumoAuth plugin for Claude Code: the LumoAuth MCP server and the LumoAuth agent skills."
+  },
+  "plugins": [
+    {
+      "name": "lumoauth",
+      "source": "./",
+      "description": "Manage a LumoAuth organization from your coding agent and add sign-in, access control and AI agent identity to your apps."
+    }
+  ]
+}
