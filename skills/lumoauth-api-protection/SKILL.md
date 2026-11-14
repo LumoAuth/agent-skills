@@ -70,7 +70,7 @@ own identifier.
    curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/scopes \
      -H "Authorization: ApiKey $LUMOAUTH_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"name": "read:reports", "description": "Read reports", "isDefault": false}'
+     -d '{"name": "read:reports", "description": "Read reports"}'
    ```
 
    Show this command to the user before you run it. It needs an organization API key with the

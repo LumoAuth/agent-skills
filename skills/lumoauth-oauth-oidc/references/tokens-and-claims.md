@@ -145,13 +145,14 @@ Implementation rules:
 - The claims follow the token's scopes, like the ID token. Claims without a value are left out.
 - `tenant` is the organization slug and is always present.
 - `roles` is present only when the application enables **User roles**.
-- A token from the client credentials grant returns `sub` (`client_<client_id>`), `client_id`,
-  `name`, `tenant` and `identity_type: "client"`.
+- A token from the client credentials grant names no user and gets `401 invalid_token`, as a JWT
+  and as an opaque token. Read such a token with introspection instead. An agent's own token is
+  accepted and returns the agent's record (`identity_type: "agent"`, `budget_policy`).
 
 | HTTP | `error` | Cause |
 |---|---|---|
 | 400 | `invalid_request` | No `Authorization` header, or a scheme other than `Bearer` or `DPoP` |
-| 401 | `invalid_token` | Token missing, expired, revoked or from another issuer; or the user was blocked, signed out everywhere or reset the password |
+| 401 | `invalid_token` | Token missing, expired, revoked or from another issuer; a client credentials token; or the user was blocked, signed out everywhere or reset the password |
 | 403 | `insufficient_scope` | A user token without `openid` |
 
 Use the ID token for the sign-in itself and UserInfo for current profile data. Do not call

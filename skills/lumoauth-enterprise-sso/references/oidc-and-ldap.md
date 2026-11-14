@@ -18,7 +18,7 @@ Every sign-in through a deactivated connection is refused, including one that st
 
 ### Add the connection
 
-Section **Enterprise SSO (OIDC)**. Use a vendor tile under **OIDC quick connect**, or **Add OIDC IdP** for any other OpenID Connect provider.
+Section **Enterprise SSO (OIDC)**. Use a vendor tile under **Add a provider**, or **Add OIDC IdP** for any other OpenID Connect provider.
 
 Register this redirect URI with the IdP. The form shows it:
 

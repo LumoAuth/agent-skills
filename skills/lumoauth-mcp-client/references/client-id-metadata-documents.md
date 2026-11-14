@@ -30,7 +30,7 @@ Each organization keeps its own copy of the client, so one metadata URL works in
 |---|---|
 | `client_id` | Required. Byte for byte the URL at which the file is served. A trailing slash, `www.`, a port or a different case makes it a mismatch |
 | `client_name` | Required. LumoAuth removes control characters, `<`, `>`, backticks and `${`, and cuts the name to 100 characters |
-| `redirect_uris` | Required. Each URI is `https`, or `http` on the loopback interface only (`localhost`, `127.0.0.1`, `[::1]`). A loopback URI matches any port at run time. No fragments, no custom schemes (`myapp://…`). One bad URI rejects the whole document |
+| `redirect_uris` | Required. Each URI is `https`, or `http` on the loopback interface only (`localhost`, `127.0.0.1`, `[::1]`). For a public client (`token_endpoint_auth_method: none`) a loopback URI matches any port at run time; a `private_key_jwt` client gets that on `127.0.0.1` and `[::1]` only. No fragments, no custom schemes (`myapp://…`). One bad URI rejects the whole document |
 | `grant_types` | `authorization_code` and `refresh_token` only. The client receives refresh tokens only when `refresh_token` is listed |
 | `token_endpoint_auth_method` | `none` (the default, a public client) or `private_key_jwt` |
 | `jwks` or `jwks_uri` | Required with `private_key_jwt`. `jwks_uri` must be `https` |
@@ -78,7 +78,7 @@ On the consent screen the user sees the client as an **external client** with th
 
 LumoAuth takes from the document only the identity scopes (`openid`, `profile`, `email`, `phone`, `address`), `mcp:read`, and the scopes of the organization's active MCP servers. It drops everything else without an error: `admin`, `admin:*`, `scim`, `offline_access`, `*:write` and so on. A dropped scope does not appear on the consent screen.
 
-An organization admin can allow more scopes for CIMD clients with the setting `cimd_allowed_scopes`. Show the user this command before you run it: it changes the organization's sign-in settings. It needs the `settings.manage` permission (an API key needs `admin:settings:write`).
+An organization admin can allow more scopes for CIMD clients with the setting `cimd_allowed_scopes`. Show the user this command before you run it: it changes the organization's sign-in settings. It needs the `settings.manage` permission (an API key needs `admin:settings:write`). Adding an admin scope (`admin` or `admin:<area>:<read|write>`) also needs `users.delete`, and adding `authz:check` needs `policies.view`; otherwise the answer is `403` and nothing is stored.
 
 ```bash
 lumo api PATCH /settings/auth --data '{ "cimd_allowed_scopes": ["mcp:write"] }'
@@ -123,7 +123,7 @@ Every rejection carries a stable `reason`. The authorization error page shows it
 | `invalid_client_id_url` | The `client_id` is not an absolute `https://` URL with a path, or it has a query, a fragment, a user name or a `.`/`..` segment |
 | `client_id_too_long` | More than 191 characters. Publish at a shorter URL |
 | `unsafe_url` | The host is loopback, private or link-local, or it does not resolve. Use a public `https` host |
-| `fetch_failed` | Connection, TLS or timeout error (10 seconds per request), or the URL redirects |
+| `fetch_failed` | Connection, TLS or timeout error (the host must answer within 5 seconds and deliver the document within 8 seconds), or the URL redirects |
 | `http_status_NNN` | The URL answered a status other than `200` |
 | `invalid_content_type` | Serve `application/json` or `application/*+json` |
 | `document_too_large` | Larger than 64 KB |
@@ -135,7 +135,8 @@ Every rejection carries a stable `reason`. The authorization error page shows it
 | `unsupported_token_endpoint_auth_method` | Use `none` or `private_key_jwt` |
 | `private_key_jwt_requires_jwks` | Publish `jwks` or an `https` `jwks_uri` |
 | `invalid_grant_types` | `grant_types` must be an array of strings |
-| `fetch_rate_limited` | More than 10 fetch attempts for this URL in one minute. Fix the document, wait, try again |
+| `unsupported_grant_types` | `grant_types` does not include `authorization_code`. Leave it out, or list `authorization_code` (and `refresh_token`) |
+| `fetch_rate_limited` | More than 10 fetch attempts for this URL in one minute, or too many fetches from your address. Fix the document, wait, try again |
 | `client_id_collision` | A registered application in the organization already uses this `client_id` |
 | `cimd_disabled_for_tenant` | The organization switched CIMD off. Ask its admin to switch it on, or register the client |
 | `domain_not_allowed` | The organization allows only listed domains. Ask its admin to add the domain |

@@ -136,7 +136,7 @@ Users who are provisioned through SAML start with no roles. Assign roles afterwa
 
 ### OIDC connection to an IdP
 
-Portal: **Settings → Integrations → Enterprise SSO (OIDC)**. Use a vendor preset under **OIDC quick connect** or **Add OIDC IdP** for any other provider. Register the redirect URI that the form shows with the IdP:
+Portal: **Settings → Integrations → Enterprise SSO (OIDC)**. Use a vendor preset under **Add a provider** in that section, or **Add OIDC IdP** for any other provider. Register the redirect URI that the form shows with the IdP:
 
 ```text
 https://app.lumoauth.dev/orgs/acme-corp/oidc/rp/callback

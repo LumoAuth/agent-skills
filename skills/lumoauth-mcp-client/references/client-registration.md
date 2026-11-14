@@ -49,7 +49,7 @@ LumoAuth validates every redirect URI of a client that registers itself or ident
 
 For an application that an admin registers in the portal, the redirect URI that the client sends must be one of the application's registered URIs.
 
-Loopback ports: for a registered application, the package READMEs state that LumoAuth accepts a changing port only on `127.0.0.1` and `[::1]`, not on `localhost`. With `localhost`, register the exact port and give the client a fixed callback port. A CIMD document lists the loopback URI without a port, and any port matches at run time.
+Loopback ports: LumoAuth accepts a changing port on `http://127.0.0.1` and `http://[::1]` for every application, and on `http://localhost` for a public application (no client secret). For a confidential application with `localhost`, register the exact port and give the client a fixed callback port. A CIMD document lists the loopback URI without a port; for a public client any port matches at run time.
 
 ## Dynamic client registration
 

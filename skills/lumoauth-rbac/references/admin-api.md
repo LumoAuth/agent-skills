@@ -38,9 +38,9 @@ Answers: `201` with `data` (the permission, including its numeric `id`), `400` f
 | `PATCH /roles/{roleId}` | `admin:roles:write` | `roles.edit` | `name`, `description` only |
 | `DELETE /roles/{roleId}` | `admin:roles:write` | `roles.delete` | |
 | `GET /roles/{roleId}/permissions` | `admin:roles:read` | `roles.view` | |
-| `PUT /roles/{roleId}/permissions` | `admin:roles:write` | `roles.assign-permissions` | `{"permissions": ["reports.view", "reports.edit"]}`: replaces the full set, values are slugs |
-| `POST /roles/{roleId}/permissions` | `admin:roles:write` | `roles.assign-permissions` | `{"permissionId": 12}` or `{"permissionIds": [12, 13]}`: adds, values are numeric IDs |
-| `DELETE /roles/{roleId}/permissions/{permissionId}` | `admin:roles:write` | `roles.assign-permissions` | |
+| `PUT /roles/{roleId}/permissions` | `admin:roles:write` | `roles.assign-permissions` and `roles.edit` | `{"permissions": ["reports.view", "reports.edit"]}`: replaces the full set, values are slugs |
+| `POST /roles/{roleId}/permissions` | `admin:roles:write` | `roles.assign-permissions` and `roles.edit` | `{"permissionId": 12}` or `{"permissionIds": [12, 13]}`: adds, values are numeric IDs |
+| `DELETE /roles/{roleId}/permissions/{permissionId}` | `admin:roles:write` | `roles.assign-permissions` and `roles.edit` | |
 | `GET /roles/{roleId}/users` | `admin:roles:read` | `roles.view` | |
 | `POST /roles/{roleId}/users` | `admin:roles:write` | `roles.edit` | `{"userId": "<uuid>"}` |
 | `DELETE /roles/{roleId}/users/{userId}` | `admin:roles:write` | `roles.edit` | |

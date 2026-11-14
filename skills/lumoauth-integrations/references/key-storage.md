@@ -26,7 +26,6 @@ Generate the first external key with **Sign new tokens with this key** off, veri
 | **Google Cloud KMS** | Cloud KMS | In Google Cloud |
 | **HashiCorp Vault** | Vault `transit` engine | In Vault |
 | **Akeyless** | Akeyless | In Akeyless |
-| **AWS CloudHSM** | The organization's CloudHSM cluster, through a KMS custom key store | In the HSM |
 | **Azure Managed HSM** | A Managed HSM pool | In the HSM |
 | **Thales CipherTrust** | A CipherTrust Manager appliance | In the appliance |
 | **Fortanix DSM** | Fortanix DSM | In the HSM |
@@ -40,7 +39,6 @@ Generate the first external key with **Sign new tokens with this key** off, veri
 
 | Provider | Fields |
 |---|---|
-| **AWS CloudHSM** | Region; access key ID and secret access key of an IAM principal with `kms:CreateKey`, `kms:CreateAlias`, `kms:GetPublicKey`, `kms:Sign`; session token (temporary credentials only); custom key store ID (`cks-...`, must be connected) |
 | **Azure Managed HSM** | HSM pool name (or the full vault URL); tenant ID, client ID and client secret of a service principal with the **Managed HSM Crypto User** role |
 | **Thales CipherTrust** | CipherTrust Manager URL; user name and password, or API key; optional domain |
 | **Fortanix DSM** | DSM endpoint (`https://apps.smartkey.io`, `eu.smartkey.io`, `uk.smartkey.io` or the organization's own); app API key; optional group ID |
@@ -61,6 +59,8 @@ For Azure Key Vault, AWS KMS, Google Cloud KMS and Akeyless, read the fields fro
 - Disabling or deleting the key at the provider stops token issuance for that key at once. Plan for this before any maintenance at the provider.
 
 **IBM Key Protect note.** This provider uses envelope encryption, not remote signing: the private key is wrapped by the organization's root key and unwrapped into LumoAuth's memory at signing time. If signing must happen entirely inside an HSM, use the PKCS#11 option with the vendor's PKCS#11 library.
+
+**AWS CloudHSM note.** There is no separate CloudHSM option: an AWS KMS custom key store backed by CloudHSM holds symmetric keys only. Use the PKCS#11 option with the AWS CloudHSM client.
 
 ## PKCS#11 through a signing sidecar
 

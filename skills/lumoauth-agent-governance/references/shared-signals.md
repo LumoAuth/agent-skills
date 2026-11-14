@@ -9,7 +9,7 @@ LumoAuth implements the OpenID Shared Signals Framework (SSF) 1.0 in both direct
 
 What is not implemented, so do not build on it: updating a stream through the API, a per-stream status endpoint, and adding or removing subjects of a stream. Outbound delivery is push only. Recreate a stream to change it through the API, or edit it in the portal.
 
-Portal page for both directions: **AI Agents → Agent activity → Security signals**, `/orgs/{orgId}/portal/agent-guard/security-signals`. Viewing needs `agents.view`. Creating or changing anything needs `settings.manage`.
+Portal page for both directions: **AI Agents → Agent activity → Security signals**, `/orgs/{orgId}/portal/agent-guard/security-signals`. Viewing needs `agents.view` and `webhooks.view` (as `GET /ssf/stream` does). Creating, changing or verifying a stream needs `settings.manage`, in the portal and with `POST /ssf/stream`, `DELETE /ssf/stream` and `POST /ssf/verify`.
 
 ## Sending events (transmitter)
 

@@ -125,7 +125,7 @@ The connection form has a **Login page** box.
 
 Routing depends only on the domain that the person types. It never depends on whether an account exists. For a SAML connection the domains are its **Allowed email domains**.
 
-A custom login form can read the route from `POST /orgs/{orgId}/check-email`: the JSON response carries `sso_url` when a connection claims the domain. Send the browser to that URL.
+A custom login form does not read the route itself. Pass the address as `login_hint` in the authorization request. The hosted login page starts with that address and sends it to the connection when the person continues.
 
 ## Single logout
 

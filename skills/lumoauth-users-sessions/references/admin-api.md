@@ -15,7 +15,7 @@ Each endpoint checks the scope of the credential and a permission. For an API ke
 | DELETE | `/admin/users/{userId}` | `users.delete` | `admin:users:write` | Irreversible. |
 | POST | `/admin/users/{userId}/block` | `users.edit` | `admin:users:write` | |
 | POST | `/admin/users/{userId}/unblock` | `users.edit` | `admin:users:write` | |
-| PUT, POST | `/admin/users/{userId}/password` | `users.edit` | `admin:users:write` | Body `{"password": "..."}`. Must meet the password policy. |
+| PUT, POST | `/admin/users/{userId}/password` | `users.edit` | `admin:users:write` | Body `{"password": "..."}`. Must meet the password policy. A person calling it needs a recent sign-in (Bearer token from the last 10 minutes, `X-MFA-Challenge` with an approved step-up challenge when they hold a second factor); API keys are exempt. |
 | POST | `/admin/users/{userId}/password-reset` | `users.edit` | `admin:users:write` | Sends the reset email. |
 | POST | `/admin/users/{userId}/verify-email` | `users.edit` | `admin:users:write` | Sends a new verification link. Sends nothing when the address is already verified, and still returns `200`. |
 | POST | `/admin/users/{userId}/mark-verified` | `users.edit` | `admin:users:write` | Marks the address verified without an email. |

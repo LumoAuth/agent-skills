@@ -271,10 +271,12 @@ The hook needs `@lumoauth/react` 1.5.0 or later, magic link login turned on for 
 
 | Field | Type | Meaning |
 |---|---|---|
-| `exists` | `boolean` | An account with this email exists |
+| `exists` | `boolean` | `true` when LumoAuth answered, for every address. It does not say whether the address has an account. `false` when the check was not available. |
 | `passwordEnabled`, `passkeyEnabled`, `magicLinkEnabled` | `boolean` | Methods that the organization has turned on |
-| `hasPasskey`, `hasPushDevice` | `boolean` | Methods that this user has enrolled |
-| `maskedEmail` | `string \| undefined` | Partly masked address for display |
+| `hasPasskey`, `hasPushDevice` | `boolean` | Always `false`. The answer is the same for every address. |
+| `maskedEmail` | `undefined` | Never set |
+
+The check needs a version of `@lumoauth/react` later than 1.5.0 and the origin of the app under **Browser CORS origins** of the application.
 
 ```tsx
 // src/components/EmailStep.tsx

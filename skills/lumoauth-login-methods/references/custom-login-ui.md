@@ -82,22 +82,20 @@ The `provider` hint is accepted for `google`, `github`, `microsoft`, `facebook`,
 
 ## Email-first: `checkEmailExists` and `useEmailFirst`
 
-`checkEmailExists(email)` posts to `POST /orgs/{orgId}/check-email` and resolves to an `EmailCheckResult`:
+`checkEmailExists(email)` posts JSON (`email` and the `clientId` of the application) to `POST /orgs/{orgId}/api/v1/oauth/check-email` and resolves to an `EmailCheckResult`. The request sends no cookie. From a browser, the origin of the app must be under **Browser CORS origins** of the application. This needs a version of the JavaScript SDK later than 1.5.0: version 1.5.0 and earlier post to the endpoint of the hosted login page, which a page on another origin cannot read.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `exists` | `boolean` | Always `true` from the server. It says nothing about the address. `false` only when the request failed or was rate limited. |
-| `hasPushDevice` | `boolean` | `true` when the address belongs to an active account with an active push device and the MFA policy allows push at sign-in |
-| `hasPasskey` | `boolean` | Always `false`. Show a passkey button when `passkeyEnabled` is `true`. |
+| `exists` | `boolean` | Always `true` from the server. It says nothing about the address. `false` only when the request failed, was refused or was rate limited. |
 | `magicLinkEnabled` | `boolean` | Organization setting |
-| `passkeyEnabled` | `boolean` | Organization setting |
+| `passkeyEnabled` | `boolean` | Organization setting. Show a passkey button when it is `true`. |
 | `passwordEnabled` | `boolean` | Organization setting |
-| `maskedEmail` | `string` or `undefined` | Empty. Show the address that the user typed. |
-| `pushInitiateUrl`, `pushStatusUrl`, `pushLoginUrl` | `string` or `undefined` | Present only when `hasPushDevice` is `true` |
+| `hasPasskey`, `hasPushDevice` | `boolean` | Always `false`. The server tells another site nothing about an address. |
+| `maskedEmail`, `pushInitiateUrl`, `pushStatusUrl`, `pushLoginUrl` | `undefined` | Never set |
 
-The answer is the same for every address in the organization except `hasPushDevice`. Do not use it to tell a new user from an existing one. Offer sign-up from a separate link.
+The answer is the same for every address in the organization. Do not use it to tell a new user from an existing one. Offer sign-up from a separate link.
 
-The method does not throw. On a network error, a `429` or another failure it resolves to an object with every flag `false`. Treat that as "fall back to the hosted login page".
+The method does not throw. On a network error, a `429`, a refused origin or another failure it resolves to an object with every flag `false`. Treat that as "fall back to the hosted login page".
 
 ```typescript
 import { AuthModule } from '@lumoauth/client';
@@ -214,10 +212,10 @@ For a stack without the JavaScript SDK. All are relative to the region base URL.
 
 | Endpoint | Body | Response |
 |---|---|---|
-| `POST /orgs/{orgId}/check-email` | Form: `email` | JSON: `exists`, `has_push_device`, `has_passkey`, `magic_link_enabled`, `passkey_enabled`, `password_enabled`, `masked_email`, `sso_url`, and the `push_*_url` fields when push is available. `429` when rate limited. |
+| `POST /orgs/{orgId}/api/v1/oauth/check-email` | JSON: `email`, `client_id` | JSON: `exists` (always `true`), `magic_link_enabled`, `passkey_enabled`, `password_enabled`. The same for every address. An error answers with `error` and `message`; `429` when rate limited. |
 | `POST /orgs/{orgId}/api/v1/oauth/magic-link` | JSON: `email`, `client_id`, optional `return_to` and `captcha_token` | JSON: `{"status": "sent"}`. An error answers with `error` and `message` |
 | `POST /orgs/{orgId}/api/v1/oauth/login/json` | JSON: `email`, `password` | JSON: `status`, and `challenge_url` when `status` is `mfa_required` |
 
-`sso_url` is set when an enterprise connection claims the email domain. Send the browser there instead of showing a password field. See `lumoauth-enterprise-sso`.
+An enterprise connection can claim an email domain. The hosted login page then sends an address in that domain to the connection's identity provider. A custom form does not get this route from the check. Pass the address as `login_hint` in the authorization request: the hosted login page starts with that address and routes it when the person continues. See `lumoauth-enterprise-sso`.
 
 Docs: https://docs.lumoauth.dev/user-guide/authentication/magic-link and https://docs.lumoauth.dev/oauth/authorize

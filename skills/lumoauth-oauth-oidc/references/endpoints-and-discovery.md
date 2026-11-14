@@ -81,7 +81,8 @@ needs them; this table exists so that you can check a configuration quickly.
 | `claims_parameter_supported` | `false` |
 | `prompt_values_supported` | `none`, `login`, `consent`, `create` |
 | `ui_locales_supported` | `en`, `es`, `fr`, `de`, `pt-BR`, `it`, `nl`, `ja`, `ar` |
-| `acr_values_supported` | `urn:lumoauth:acr:mfa:phr`, `urn:lumoauth:acr:mfa:strong`, `urn:lumoauth:acr:mfa`, `urn:lumoauth:acr:mfa:basic`, `urn:lumoauth:acr:pwd` (unless the organization overrides the list) |
+| `acr_values_supported` | `urn:lumoauth:acr:mfa:phr`, `urn:lumoauth:acr:mfa:strong`, `urn:lumoauth:acr:mfa`, `urn:lumoauth:acr:mfa:basic`, `urn:lumoauth:acr:pwd` (the same list for every organization) |
+| `op_policy_uri`, `op_tos_uri` | The Privacy policy URL and Terms of service URL of the organization's login page; each only when it is set |
 | `authorization_response_iss_parameter_supported` | `true` |
 | `request_parameter_supported` | `true` (signed request objects) |
 | `request_uri_parameter_supported` | `true`, but only for the `request_uri` that the PAR endpoint returns |
@@ -114,8 +115,9 @@ Use one method per request. A request that authenticates in two ways is refused 
 
 ## Rate limits
 
-The OAuth endpoints are rate limited and answer `429` with `too_many_requests`. Back off and retry
-later. Do not introspect or call UserInfo on every request; cache the result for a short time.
+The OAuth endpoints are rate limited and answer `429` with
+`{"error": "too_many_requests", "error_description": "Rate limit exceeded"}` and a `Retry-After`
+header. Wait that many seconds before you retry. Do not introspect or call UserInfo on every request; cache the result for a short time.
 
 ## Sources
 

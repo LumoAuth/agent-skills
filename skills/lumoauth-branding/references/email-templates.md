@@ -18,14 +18,14 @@ Admin API, relative to `{base}/orgs/{orgId}/api/v1`:
 
 | Method | Path | Permission | Scope |
 |---|---|---|---|
-| `GET` | `/admin/email-templates` | `settings.view` | `admin:settings:read` |
-| `GET` | `/admin/email-templates/{type}` | `settings.view` | `admin:settings:read` |
-| `GET` | `/admin/email-templates/{type}/variables` | `settings.view` | `admin:settings:read` |
+| `GET` | `/admin/email-templates` | `settings.manage` and `users.delete` | `admin:settings:read` |
+| `GET` | `/admin/email-templates/{type}` | `settings.manage` and `users.delete` | `admin:settings:read` |
+| `GET` | `/admin/email-templates/{type}/variables` | `settings.manage` and `users.delete` | `admin:settings:read` |
 | `PUT` | `/admin/email-templates/{type}` | `settings.manage` and `users.delete` | `admin:settings:write` |
 | `DELETE` | `/admin/email-templates/{type}` | `settings.manage` and `users.delete` | `admin:settings:write` |
-| `POST` | `/admin/email-templates/{type}/preview` | `settings.edit` | `admin:settings:write` |
+| `POST` | `/admin/email-templates/{type}/preview` | `settings.manage` and `users.delete` | `admin:settings:write` |
 
-Writing a template is reserved for a full admin, because a template carries every user's reset, sign-in and invitation link. With an API key, the creator of the key must hold both permissions. Otherwise the API answers `403`.
+Writing or previewing a template is reserved for a full admin, because a template carries every user's reset, sign-in and invitation link. With an API key, the creator of the key must hold both permissions. Otherwise the API answers `403`.
 
 There is no dedicated CLI command. Use `lumo api` with these paths.
 

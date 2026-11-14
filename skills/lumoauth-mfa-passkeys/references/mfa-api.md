@@ -171,11 +171,12 @@ To finish a hosted sign-in from a custom form that runs on the LumoAuth domain: 
 | `POST` | `/admin/users/{userId}/temporary-access-code` | `users.edit` | `admin:users:write` |
 | `GET` | `/admin/policies/mfa` | `settings.view` | `admin:settings:read` |
 | `PUT` | `/admin/policies/mfa` | `settings.manage` | `admin:settings:write` |
-| `GET` | `/admin/reports/mfa-coverage` | `users.view` | `admin:users:read` |
+| `GET` | `/admin/reports/mfa-coverage` | `users.view` and `settings.view` | `admin:users:read` |
 
 - `{userId}` accepts the user ID or the email address.
 - `{authenticatorId}` has the form `type:number`, for example `totp:12`.
 - Removing an authenticator and issuing a temporary access code also require that the caller holds every permission that the target user holds. Otherwise the API answers `403`.
+- Both also need a recent sign-in of a person who calls them: a Bearer token from a sign-in within the last 10 minutes (`401 insufficient_user_authentication` otherwise for authenticator removal), and `X-MFA-Challenge` with an approved step-up challenge when that person holds a second factor (`403 step_up_required`). Organization API keys are not subject to this check. The CLI flag is `--mfa-challenge`.
 - `POST /admin/users/{userId}/mfa/reset` was removed and answers `410`.
 
 Temporary access code body:

@@ -132,7 +132,8 @@ The list response contains only `id`, `provider`, `displayName`, `enabled`, `bra
 | `enabled` | boolean | Shows or hides the button |
 | `requestedScopes` | string array | Request the minimum that the app needs |
 | `providerConfig` | object | Provider-specific values. Google: `{"hosted_domain": "example.com"}`. Microsoft: `{"tenant_id": "<directory id>"}`. Secret values inside it are stored encrypted and returned redacted. |
-| `claimMapping`, `customClaims` | object | Map provider claims to the user profile |
+| `claimMapping` | object | Maps provider claims to the user profile |
+| `customClaims` | object | Deprecated. Accepted and ignored; the response always returns `null`. To get more profile data, add a scope to `requestedScopes`. |
 | `brandColor`, `iconUrl` | string | Button appearance |
 | `authorizationUrl`, `tokenUrl`, `userInfoUrl` | string | Override the provider endpoints. Each must be a public `https://` URL. When one changes on an existing provider, send `clientSecret` again in the same request. |
 | `defaultRoles` | array of role slugs | `POST` only through this API. See [Default roles](#default-roles). To change the default roles of an existing provider, use the portal form. |

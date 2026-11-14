@@ -10,9 +10,9 @@ All paths are relative to `{base}/orgs/{orgId}/api/v1`. `{base}` is `https://app
 | GET | `/admin/audit-logs/{logId}` | `audit.view` | `admin:audit:read` | One entry with detail fields. `{logId}` is an integer. |
 | GET | `/admin/audit-logs/stats` | `audit.view` | `admin:audit:read` | Counts by event type, action and severity |
 | GET | `/admin/audit-logs/actions` | `audit.view` | `admin:audit:read` | The distinct actions and event types that this organization has recorded |
-| GET | `/admin/audit-logs/export` | `audit.export` | `admin:audit:read` | Download as CSV or JSON |
+| GET | `/admin/audit-logs/export` | `audit.export` and `audit.view` | `admin:audit:read` | Download as CSV or JSON |
 | GET | `/admin/audit-logs/retention` | `audit.view` | `admin:audit:read` | Read retention settings |
-| PUT, PATCH | `/admin/audit-logs/retention` | `settings.manage` | `admin:settings:write` | Change retention settings |
+| PUT, PATCH | `/admin/audit-logs/retention` | `settings.manage` and `gdpr.manage` | `admin:settings:write` | Change retention settings |
 
 For an API key, the user who created the key must still hold the permission. Export also depends on the organization's plan.
 

@@ -114,7 +114,7 @@ Show the tool and the arguments, wait for the user to agree, then call the tool.
 | Give a user a role | `list_roles` to find the role id, then `add_user_role` (`userId`, `roleId`) |
 | New role | `list_permissions`, `create_role` (`name`), then `add_role_permissions` (`roleId`, `permissionIds`) |
 | New application | `create_application` (`name`, `redirectUris`, `isConfidential`). Use `isConfidential: false` for a single-page or native app |
-| New AI agent | `create_agent` (`name`, `identityType`, `capabilities`). Prefer `workload` or `private_key_jwt`: they need no shared secret |
+| New AI agent | `create_agent` (`name`, `identityType`, `capabilities`). Prefer `workload` or `private_key_jwt`: they need no shared secret. A `workload` agent also needs `workloadIdentityProvider` (for example `github`) and `workloadIdentity` or `workloadIdentityConfig` (for example `{"repository": "acme/reports", "ref": "refs/heads/main"}`); a `private_key_jwt` agent needs `jwksUri`. A budget goes in `budgetPolicy`, for example `{"max_api_calls_per_day": 1000}` |
 | Register an MCP server | `create_mcp_server` (`name`, `resource_uri`, `scopes_supported`). The resource URI is the address that clients connect to |
 | New webhook | `create_webhook` (`url`, `events`). The URL must be reachable from the internet |
 | Who did what | `list_audit_event_types`, then `list_audit_logs` (`eventType`, `actorId`, `from`, `to`) |

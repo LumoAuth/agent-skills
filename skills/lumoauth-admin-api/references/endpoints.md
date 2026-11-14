@@ -93,7 +93,7 @@ described at https://docs.lumoauth.dev/admin/spec.
 | POST | `/admin/users/{userId}/temporary-access-code` | `users.edit` | `admin:users:write` |
 | GET | `/admin/policies/mfa` | `settings.view` | `admin:settings:read` |
 | PUT | `/admin/policies/mfa` | `settings.manage` | `admin:settings:write` |
-| GET | `/admin/reports/mfa-coverage` | `users.view` | `admin:users:read` |
+| GET | `/admin/reports/mfa-coverage` | `users.view` and `settings.view` | `admin:users:read` |
 
 ## Sessions and tokens
 
@@ -124,9 +124,9 @@ described at https://docs.lumoauth.dev/admin/spec.
 | PUT, PATCH | `/admin/roles/{roleId}` | `roles.edit` | `admin:roles:write` |
 | DELETE | `/admin/roles/{roleId}` | `roles.delete` | `admin:roles:write` |
 | GET | `/admin/roles/{roleId}/permissions` | `roles.view` | `admin:roles:read` |
-| PUT | `/admin/roles/{roleId}/permissions` | `roles.assign-permissions` | `admin:roles:write` |
-| POST | `/admin/roles/{roleId}/permissions` | `roles.assign-permissions` | `admin:roles:write` |
-| DELETE | `/admin/roles/{roleId}/permissions/{permissionId}` | `roles.assign-permissions` | `admin:roles:write` |
+| PUT | `/admin/roles/{roleId}/permissions` | `roles.assign-permissions` and `roles.edit` | `admin:roles:write` |
+| POST | `/admin/roles/{roleId}/permissions` | `roles.assign-permissions` and `roles.edit` | `admin:roles:write` |
+| DELETE | `/admin/roles/{roleId}/permissions/{permissionId}` | `roles.assign-permissions` and `roles.edit` | `admin:roles:write` |
 | GET | `/admin/roles/{roleId}/users` | `roles.view` | `admin:roles:read` |
 | POST | `/admin/roles/{roleId}/users` | `roles.edit` | `admin:roles:write` |
 | DELETE | `/admin/roles/{roleId}/users/{userId}` | `roles.edit` | `admin:roles:write` |
@@ -176,8 +176,8 @@ described at https://docs.lumoauth.dev/admin/spec.
 | GET | `/admin/clients/{clientId}/scopes` | `clients.view` | `admin:clients:read` |
 | PUT | `/admin/clients/{clientId}/scopes` | `clients.edit` | `admin:clients:write` |
 | POST | `/admin/clients/{clientId}/rotate-secret` | `clients.rotate-secret` | `admin:clients:write` |
-| GET | `/admin/clients/{clientId}/branding` | `branding.view` | `admin:clients:read` |
-| PUT, PATCH | `/admin/clients/{clientId}/branding` | `branding.edit` | `admin:clients:write` |
+| GET | `/admin/clients/{clientId}/branding` | `branding.view` and `clients.view` | `admin:clients:read` |
+| PUT, PATCH | `/admin/clients/{clientId}/branding` | `branding.edit` and `clients.edit` | `admin:clients:write` |
 
 ## Customer organizations
 
@@ -246,8 +246,8 @@ described at https://docs.lumoauth.dev/admin/spec.
 | GET | `/admin/audit-logs/stats` | `audit.view` | `admin:audit:read` |
 | GET | `/admin/audit-logs/actions` | `audit.view` | `admin:audit:read` |
 | GET | `/admin/audit-logs/retention` | `audit.view` | `admin:audit:read` |
-| PUT, PATCH | `/admin/audit-logs/retention` | `settings.manage` | `admin:settings:write` |
-| GET | `/admin/audit-logs/export` | `audit.export` | `admin:audit:read` |
+| PUT, PATCH | `/admin/audit-logs/retention` | `settings.manage` and `gdpr.manage` | `admin:settings:write` |
+| GET | `/admin/audit-logs/export` | `audit.export` and `audit.view` | `admin:audit:read` |
 
 ## Settings, analytics and organization
 
@@ -255,13 +255,13 @@ described at https://docs.lumoauth.dev/admin/spec.
 |---|---|---|---|
 | GET | `/admin/settings` | `settings.view` | `admin:settings:read` |
 | GET | `/admin/settings/general` | `settings.view` | `admin:settings:read` |
-| PATCH, PUT | `/admin/settings/general` | `settings.edit` | `admin:settings:write` |
+| PATCH, PUT | `/admin/settings/general` | `settings.manage` (`locale` also `branding.edit`) | `admin:settings:write` |
 | GET | `/admin/settings/authentication` | `settings.view` | `admin:settings:read` |
 | PATCH, PUT | `/admin/settings/authentication` | `settings.manage` | `admin:settings:write` |
 | GET | `/admin/settings/security` | `settings.view` | `admin:settings:read` |
 | PATCH, PUT | `/admin/settings/security` | `settings.manage` | `admin:settings:write` |
 | GET | `/admin/settings/email` | `settings.view` | `admin:settings:read` |
-| PATCH, PUT | `/admin/settings/email` | `settings.edit` | `admin:settings:write` |
+| PATCH, PUT | `/admin/settings/email` | `settings.manage` and `users.delete` (Bearer: sign-in within 10 minutes) | `admin:settings:write` |
 | GET | `/admin/organization` | `settings.view` | `admin:settings:read` |
 | PUT, PATCH | `/admin/organization` | `settings.manage` | `admin:settings:write` |
 | GET | `/admin/settings/branding` | `branding.view` | `admin:settings:read` |
@@ -276,12 +276,12 @@ described at https://docs.lumoauth.dev/admin/spec.
 
 | Method | Path | Permission | Scope |
 |---|---|---|---|
-| GET | `/admin/email-templates` | `settings.view` | `admin:settings:read` |
-| GET | `/admin/email-templates/{type}` | `settings.view` | `admin:settings:read` |
-| PUT | `/admin/email-templates/{type}` | `settings.edit` | `admin:settings:write` |
-| DELETE | `/admin/email-templates/{type}` | `settings.edit` | `admin:settings:write` |
-| POST | `/admin/email-templates/{type}/preview` | `settings.edit` | `admin:settings:write` |
-| GET | `/admin/email-templates/{type}/variables` | `settings.view` | `admin:settings:read` |
+| GET | `/admin/email-templates` | `settings.manage` and `users.delete` | `admin:settings:read` |
+| GET | `/admin/email-templates/{type}` | `settings.manage` and `users.delete` | `admin:settings:read` |
+| PUT | `/admin/email-templates/{type}` | `settings.manage` and `users.delete` | `admin:settings:write` |
+| DELETE | `/admin/email-templates/{type}` | `settings.manage` and `users.delete` | `admin:settings:write` |
+| POST | `/admin/email-templates/{type}/preview` | `settings.manage` and `users.delete` | `admin:settings:write` |
+| GET | `/admin/email-templates/{type}/variables` | `settings.manage` and `users.delete` | `admin:settings:read` |
 
 ## Sandboxes
 

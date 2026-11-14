@@ -119,7 +119,7 @@ Create a scope in the organization, then allow it on each application that may r
 curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/scopes \
   -H "Authorization: ApiKey $LUMOAUTH_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"name": "read:reports", "description": "Read reports", "isDefault": false}'
+  -d '{"name": "read:reports", "description": "Read reports"}'
 ```
 
 This call needs the `admin:permissions:write` scope on the key. A name that already exists in the

@@ -20,21 +20,20 @@ There is no Admin API and no CLI command for custom domains. The actions need a 
 
 1. **Add domain**.
 2. **Domain name**: the hostname only, for example `auth.example.com`. No `https://`, no trailing slash.
-3. **Verification method**: **TXT record (recommended)**. It does not affect how the domain resolves.
-4. **Add domain**.
+3. **Add domain**.
 
 ### 2. Create the DNS records
 
-Open **DNS setup** on the domain's card. Copy the records from there. For the TXT method they have this shape:
+Open **DNS records** on the domain's card. Copy the two records from there. They have this shape:
 
 | Type | Name | Value |
 |---|---|---|
 | `TXT` | `_lumoauth-verify.auth.example.com` | `lumoauth-verify=<token from the DNS setup card>` |
 | `CNAME` | `auth.example.com` | The LumoAuth host of the region: the host in the address of the portal, for example `app.lumoauth.dev` |
 
-The TXT record proves control of the zone. The CNAME record sends traffic to LumoAuth. The token is different for every domain entry. Never reuse a token from another entry.
+The TXT record proves control of the zone. It is the only record that verification reads. The CNAME record sends traffic to LumoAuth and proves nothing. The two records have different names, so both stay in the zone. The token is different for every domain entry. Never reuse a token from another entry.
 
-With the **CNAME record** verification method, the card shows the records for that method. The ownership TXT record is still needed for the first verification.
+LumoAuth reads the TXT record again every day. When it stays missing for 7 days, the domain stops being served until the user verifies it again. After 30 days the domain is released.
 
 Check propagation before verifying:
 
@@ -45,9 +44,11 @@ dig +short CNAME auth.example.com
 
 ### 3. Verify
 
-Choose **Verify now** in the domain's actions menu. Verification needs two successful checks a short time apart. When the first check passes, the domain can still show as pending. Wait about a minute and choose **Verify now** again. A failed check restarts the cycle.
+Choose **Verify now** in the domain's actions menu. Verification needs two successful checks at least 30 seconds apart. When the first check passes, the portal says that the record was found and asks for a second confirmation, and the domain shows **Record found, confirm once more**. That is not an error. Wait 30 seconds and choose **Verify now** again. A failed check restarts the cycle.
 
-After verification LumoAuth activates the domain and provisions the TLS certificate.
+When the domain is verified but its CNAME record does not point at LumoAuth yet, the portal says so. Visitors reach the sign-in pages only once the CNAME record is in place.
+
+After verification LumoAuth activates the domain. It gets a TLS certificate from Let's Encrypt by itself, usually a few minutes after the CNAME record points straight at the region host (no DNS proxy in between, no other A or AAAA record for the name). If the domain has CAA records, one of them must allow `letsencrypt.org`. Until the certificate exists the browser shows a connection error. LumoAuth renews the certificate while the CNAME record stays in place.
 
 ### 4. Manage
 
@@ -91,7 +92,7 @@ Migration checklist for an existing app:
 4. Never mix entry points in one application. A code that was obtained on `auth.example.com` and redeemed on the `/orgs/acme-corp/` path yields a token whose `iss` the app rejects. That rejection is correct.
 5. Tokens that were issued before the switch keep their old issuer until they expire. Plan the switch so that APIs accept both issuers for that period, or sign users in again.
 6. Redirect URIs of the app do not change. They point to the app, not to LumoAuth.
-7. Integrations that were configured with platform URLs (SAML metadata, social provider callback URLs, the SCIM base URL in an IdP) keep working on the platform address. Leave them unchanged unless the user asks for the custom domain there too, and test one integration before changing a production one.
+7. Integrations that were configured with platform URLs (SAML metadata, social provider callback URLs, the SCIM base URL in an IdP) keep working on the platform address. A sign-in through an identity provider returns to the host on which it started, so a sign-in that starts on the custom domain uses the custom-domain addresses: `https://auth.example.com/auth/social/{provider}/callback`, `https://auth.example.com/oidc/rp/callback`, SAML metadata `https://auth.example.com/saml/sp/metadata`. The user registers those with the provider next to the existing ones (a second allowed redirect address, or a second SAML service provider). The **Custom domains** page lists them for each active domain. Test one integration before changing a production one.
 
 The SDK configuration key for the base URL differs by SDK. Use the framework skill of the app to change it.
 
@@ -103,9 +104,11 @@ A passkey is created for the domain it was made on. A passkey that was made on t
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Verification fails | The TXT record is missing, has another token, or has not propagated | Compare the `dig` output with the **DNS setup** card |
-| Verification passes once and the domain stays pending | The second check has not run | Choose **Verify now** again after about a minute |
-| The browser shows a certificate error | DNS has not propagated or the CNAME does not point to the region host | Fix the CNAME, wait for propagation, verify again |
+| Verification fails | The TXT record is missing, has another token, or has not propagated | Compare the `dig` output with the **DNS records** card |
+| Verification passes once and the domain shows **Record found, confirm once more** | The second check has not run | Choose **Verify now** again after 30 seconds |
+| A page on the custom domain answers 404 | The address starts with `/orgs/` | Leave the `/orgs/{orgId}` prefix out on the custom domain |
+| Social, SAML or OIDC sign-in fails on the custom domain | The provider does not know the custom-domain callback address | Register it with the provider (see the migration checklist) |
+| The browser shows a connection or certificate error | No certificate yet: the domain is not verified, the CNAME is missing or points elsewhere, a DNS proxy sits in front, another A or AAAA record exists for the name, or a CAA record does not allow `letsencrypt.org` | Fix the record. LumoAuth gets the certificate a few minutes after the domain is verified and the CNAME points straight at the region host; no new verification is needed. After repeated failures LumoAuth waits longer between attempts, up to one day |
 | Discovery returns the old URLs | A cache in the app or a proxy | Clear it. The discovery document changes at once. |
 | Token validation fails after the switch | The app or an API still expects the old issuer | Set the issuer to the bare domain, or read it from discovery |
 | `iss` mismatch in the OIDC library | The flow started on one entry point and is validated against the other | Use one entry point per application |

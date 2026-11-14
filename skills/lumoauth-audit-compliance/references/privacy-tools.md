@@ -25,11 +25,11 @@ Sidebar group **GDPR & privacy**: **Privacy overview**, **Subject requests**, **
 A request that a person makes about their data is tracked as a data subject request (DSR). Users file one from their account (`/account/dsr`, **Make a privacy request**). Admins process it:
 
 1. Open `/orgs/{orgId}/portal/gdpr/dsr`.
-2. Filter by status (**Pending**, **In progress**, **Verification**, **Completed**, **Rejected**) or by type: **Access (Art. 15)**, **Rectification (Art. 16)**, **Erasure (Art. 17)**, **Restriction (Art. 18)**, **Portability (Art. 20)**, **Objection (Art. 21)**.
+2. Filter by status (**Pending**, **In progress**, **Verification**, **Completed**, **Rejected**) or by type: **Access (Art. 15)**, **Rectification (Art. 16)**, **Erasure (Art. 17)**, **Restriction (Art. 18)**, **Portability (Art. 20)**, **Objection (Art. 21)**, **Human review (Art. 22)** (a user contests an automated decision).
 3. Click the email address on a request to open it.
-4. **Update** the status and the assignee, **Add note**, then **Mark completed** with a response to the person, or **Reject** with a reason.
+4. **Update** the status (**Pending**, **In progress** or **Identity verification**) and the assignee, **Add note**, then **Mark completed** with a response to the person, or **Reject** with a reason. A request is closed only by these two actions.
 
-An access or portability export contains the user's profile, login history and session data, role and group assignments, MFA enrollment status, social account links, consent records and the audit log entries about the user.
+A person's copy of their data has the same categories in every format (JSON file, spreadsheet, portable file): profile (with whether processing is restricted), sign-in methods (details and counts, never secrets), sessions, linked sign-in accounts and identities, custom profile attributes, consent preferences, authorized applications, roles and groups, the applications that received the data, retention periods, rights and where to complain, automated decisions, and the newest 500 audit entries about the person inside the plan's audit retention period.
 
 There is no API to create or process a DSR.
 
@@ -71,9 +71,9 @@ When self-service restriction or deletion is off, the buttons send a privacy req
 
 ## Consent records
 
-`/orgs/{orgId}/portal/gdpr/consent-records` lists each consent with:
+`/orgs/{orgId}/portal/gdpr/consent-records` needs `gdpr.manage` (`audit.view` does not open it) and lists each consent with:
 
-- **Purpose** (whatever the organization records, for example terms of service or marketing) and **Legal basis**
+- **Purpose** and **Legal basis**. Purpose keys: `terms_of_service` (sign-up terms, contract), `marketing_email` (sign-up marketing checkbox, **Privacy & data**, re-consent page), `product_updates`, `analytics_tracking`, `third_party_sharing` (**Privacy & data**, re-consent page). Older sign-up marketing consents carry `marketing` and count as `marketing_email`
 - **Action** (granted, withdrawn, updated, expired, forced to re-consent) and **Date**
 - **Method** (web form, API, registration, double opt-in, admin or system)
 - **Policy version** in force
@@ -121,6 +121,8 @@ Third parties that the organization itself configures (email and SMS providers, 
 | Users and access | User profiles and preferences; roles, permissions and groups; session history; consent grants |
 | Applications and integrations | OAuth clients, SAML service providers and identity providers, OIDC identity providers, social login providers, webhooks, LDAP configurations |
 | Security and audit | Signing keys (public keys only), audit logs of the last 90 days (only when the admin holds `audit.export`), IdP connections |
+
+A section that the admin may not read (users without `users.view`, audit logs without `audit.export` or outside the plan) is left out, and `export_metadata.omitted` names each one with the reason; the page says so before the download.
 
 Client secrets, private keys, passwords, MFA secrets and access tokens are not in the file. The file still contains personal data of all users: store it in a place that the user chose, and never commit it.
 

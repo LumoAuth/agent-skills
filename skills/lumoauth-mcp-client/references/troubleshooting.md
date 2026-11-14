@@ -47,7 +47,7 @@ An organization admin can also read the audit log in the portal (**Audit logs**)
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Invalid Redirect URL` | The redirect URI that the client sent is not registered for the application. A changing port is accepted only on `127.0.0.1` and `[::1]`, not on `localhost` | Register the exact URI, and give the client a fixed callback port |
+| `Invalid Redirect URL` | The redirect URI that the client sent is not registered for the application. A changing port is accepted on `127.0.0.1` and `[::1]`, and on `http://localhost` only for a public application | Register the exact URI, and give the client a fixed callback port |
 | **Client metadata document rejected** | The CIMD file breaks a rule. **Technical details** shows the reason | Look up the reason in `client-id-metadata-documents.md` |
 | **Application blocked** | An organization admin blocked this metadata-document client | Ask the admin to unblock it under **Applications → External clients (CIMD)** |
 | An error about `code_challenge` | The request has no PKCE challenge, or a method other than `S256` | Send `code_challenge` and `code_challenge_method=S256` |

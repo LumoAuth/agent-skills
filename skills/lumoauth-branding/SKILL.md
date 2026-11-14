@@ -173,12 +173,12 @@ None for branding. Three standard parameters on the authorization request change
 
 A custom domain serves the organization's pages and endpoints from the user's own hostname. It is set up in the portal only.
 
-1. The user opens `/orgs/{orgId}/portal/custom-domains`, clicks **Add domain**, enters the hostname (for example `auth.example.com`, without `https://`) and picks **TXT record (recommended)**.
-2. **DNS setup** on the domain's card shows the records. The user adds them at the DNS provider:
-   - the TXT record `_lumoauth-verify.auth.example.com` with the value `lumoauth-verify=<token>` that the card shows,
-   - a CNAME record from `auth.example.com` to the LumoAuth host of the region, for example `app.lumoauth.dev`.
-3. The user chooses **Verify now** in the domain's actions menu. Verification needs two successful checks a short time apart. When the first one leaves the domain pending without an error, wait about a minute and choose **Verify now** again.
-4. LumoAuth provisions the TLS certificate.
+1. The user opens `/orgs/{orgId}/portal/custom-domains`, clicks **Add domain**, enters the hostname (for example `auth.example.com`, without `https://`).
+2. **DNS records** on the domain's card shows two records with different names. The user adds both at the DNS provider and keeps them:
+   - the TXT record `_lumoauth-verify.auth.example.com` with the value `lumoauth-verify=<token>` that the card shows (proves ownership; the only record that verification reads, and LumoAuth reads it again every day),
+   - a CNAME record from `auth.example.com` to the LumoAuth host of the region, for example `app.lumoauth.dev` (routes traffic).
+3. The user chooses **Verify now** in the domain's actions menu. Verification needs two successful checks at least 30 seconds apart. After the first one the portal says that the record was found and asks for a second confirmation: wait 30 seconds and choose **Verify now** again.
+4. LumoAuth gets a TLS certificate from Let's Encrypt by itself, usually a few minutes after the domain is verified and its CNAME record points at the region host. The CNAME must point straight at LumoAuth (no DNS proxy such as Cloudflare's), and CAA records, if the domain has any, must allow `letsencrypt.org`. Until the certificate exists the browser shows a connection error.
 
 After activation, change the app configuration. The `/orgs/{orgId}` prefix disappears and the issuer becomes the bare domain:
 
