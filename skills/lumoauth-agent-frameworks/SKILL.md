@@ -62,7 +62,7 @@ Ask the user for any value that you cannot find. Do not guess one.
 
 Agent settings to confirm with the user:
 
-- The agent's capabilities cover the actions that the tools check (for example `documents.read`). A capability `tool:search_web` and `tool.search_web` are the same name.
+- The agent's capabilities cover the actions that the tools check (for example `documents:read`). Write capabilities as `<resource>:<action>`, such as `web:search`. LumoAuth rejects the dot form `web.search` in capabilities, token scopes and Ask API actions.
 - **May act on behalf of users** is on when the agent uses push approval.
 - For reviewed JIT permissions, a user who does not own the agent holds `jit.approve` (see `lumoauth-agent-approvals`).
 
@@ -70,7 +70,7 @@ To register the agent from the command line, show the user the command first:
 
 ```bash
 lumo agents create --name "Research Analyst" --type client_secret \
-  --capabilities documents.read,payments.wire --act-on-behalf
+  --capabilities documents:read,payments:wire --act-on-behalf
 ```
 
 The output shows the credential once. `lumoauth-agent-identity` covers the options.
@@ -178,7 +178,7 @@ def budget_spent() -> bool:
 Notes on the module:
 
 - `check` fails closed: an error from LumoAuth is a refusal.
-- `agent.ask` is a server decision. It applies the agent's capabilities, the organization's authorization policies and the token's scope, writes an audit record, and counts toward the agent's budget. `agent.has_capability("documents.read")` reads the registered capabilities that the SDK cached at first use; use it for a cheap local check. Action naming and the Ask API belong to `lumoauth-agent-identity`.
+- `agent.ask` is a server decision. It applies the agent's capabilities, the organization's authorization policies and the token's scope, writes an audit record, and counts toward the agent's budget. `agent.has_capability("documents:read")` reads the registered capabilities that the SDK cached at first use; use it for a cheap local check. Action naming and the Ask API belong to `lumoauth-agent-identity`.
 - `approve` blocks while it polls, 90 seconds at most. In an `async` tool, call it with `await asyncio.to_thread(approve, ...)`.
 - `call_api` sends the agent's own access token on the first attempt. Call only APIs that your organization runs. Never pass a URL that the model or a user supplied without checking its host against an allow-list.
 - A JIT request for a risky operation waits for a reviewer, 5 minutes at most by default, and returns the original `403` response when nobody approves.
@@ -193,7 +193,7 @@ from lumo_guard import approve, check
 
 def wire_transfer(vendor: str, amount: int, invoice: str) -> str:
     """Wire money in US dollars to a vendor to pay an invoice."""
-    refusal = check("payments.wire", vendor=vendor, amount=amount)
+    refusal = check("payments:wire", vendor=vendor, amount=amount)
     if refusal:
         return refusal
     refusal = approve(

@@ -185,7 +185,7 @@ app.get('/v1/data', async (req, res) => {
       headers: req.headers as Record<string, string | undefined>,
       body: Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0),
     });
-    if (!(claims.scope ?? '').split(' ').includes('read')) {
+    if (!(claims.scope ?? '').split(' ').includes('data:read')) {
       res.status(403).json({ error: 'insufficient_scope' });
       return;
     }
@@ -302,7 +302,7 @@ func data(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	if !claims.HasScope("read") {
+	if !claims.HasScope("data:read") {
 		http.Error(w, "forbidden", http.StatusForbidden)
 		return
 	}
@@ -341,7 +341,7 @@ public final class AAuthGuard {
         String token = authorization.startsWith("Bearer ") ? authorization.substring(7) : "";
         AAuthClaims claims = AAuthVerifier.verifyAuthToken(token, keys.verifyOptions(RESOURCE));
         claims.verifyProofOfPossession(new IncomingRequest(method, uri, headers, body));
-        if (!claims.hasScope("read")) {
+        if (!claims.hasScope("data:read")) {
             throw new SecurityException("insufficient scope");
         }
         return claims;
@@ -367,7 +367,7 @@ public sealed class AAuthGuard
         var token = authorization.StartsWith("Bearer ") ? authorization["Bearer ".Length..] : "";
         var claims = await AAuthVerifier.VerifyAuthTokenAsync(token, await _keys.VerifyOptionsAsync(Resource));
         claims.VerifyProofOfPossession(new IncomingRequest(method, uri, headers, body));
-        if (!claims.HasScope("read"))
+        if (!claims.HasScope("data:read"))
         {
             throw new UnauthorizedAccessException("insufficient scope");
         }

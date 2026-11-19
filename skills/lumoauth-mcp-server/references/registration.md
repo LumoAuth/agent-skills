@@ -60,7 +60,7 @@ Use the exact URL that clients connect to as the Resource URI. MCP clients compa
 - An application may only ask for scopes that are in its own **Scopes** list (**Applications → the application → Configuration**). Add a new scope there too.
 - `offline_access` never appears in the challenge or in the metadata.
 
-Agent tokens: an agent asks for the scope as the server spells it, with `resource` set to the server. LumoAuth allows the scope when one of the agent's capabilities covers it. Capabilities match in any spelling (`files:read`, `files.read` and `files.*` all cover `files:read`). Without `scope`, the token gets the vocabulary entries that the agent's capabilities cover, and the request fails with `invalid_scope` when none is covered.
+Agent tokens: an agent asks for the scope as the server spells it, with `resource` set to the server. LumoAuth allows the scope when one of the agent's capabilities covers it. Capabilities match in the stored form `<resource>:<action>`: `files:read` and `files:*` cover `files:read`, and also `files.read` when that is the server's spelling. The server's scopes keep their dots; the agent's capabilities must use `:`, because LumoAuth rejects a capability such as `files.read`. Without `scope`, the token gets the vocabulary entries that the agent's capabilities cover, and the request fails with `invalid_scope` when none is covered.
 
 ## What LumoAuth enforces for the server
 

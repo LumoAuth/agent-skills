@@ -23,7 +23,7 @@ MCP_URL = "https://mcp.example.com/mcp"
 @tool
 def fetch_sensitive_document(document_id: str) -> str:
     """Fetch a sensitive document from the protected API."""
-    refusal = check("documents.read", id=document_id)
+    refusal = check("documents:read", id=document_id)
     if refusal:
         return refusal
     response = call_api(
@@ -37,7 +37,7 @@ def fetch_sensitive_document(document_id: str) -> str:
 @tool
 def query_financial_mcp(metric: str) -> str:
     """Query the financial metrics MCP server for one metric."""
-    refusal = check("mcp.financial", metric=metric)
+    refusal = check("financial_metrics:read", metric=metric)
     if refusal:
         return refusal
     try:
@@ -61,7 +61,7 @@ def query_financial_mcp(metric: str) -> str:
 @tool
 def publish_report(title: str, content: str) -> str:
     """Publish an analysis report to customers. Needs human approval."""
-    refusal = check("reports.publish", title=title)
+    refusal = check("reports:publish", title=title)
     if refusal:
         return refusal
     refusal = approve(

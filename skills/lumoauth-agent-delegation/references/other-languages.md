@@ -46,7 +46,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	delegated, err := chain.ExchangeForResource(ctx, "session-1", "https://api.example.com", "documents.read")
+	delegated, err := chain.ExchangeForResource(ctx, "session-1", "https://api.example.com", "documents:read")
 	if err != nil {
 		log.Fatal(err) // 403: the agent may not act for users; 400: see the error code
 	}
@@ -74,7 +74,7 @@ import (
 
 func documents(w http.ResponseWriter, r *http.Request) {
 	claims, ok := lumoauth.AccessTokenFromContext(r.Context())
-	if !ok || !claims.HasScope("documents.read") {
+	if !ok || !claims.HasScope("documents:read") {
 		http.Error(w, "forbidden", http.StatusForbidden)
 		return
 	}
@@ -113,7 +113,7 @@ TokenResponse delegated = await agent.Delegation.ExchangeForResourceAsync(
     userAccessToken,                       // subject: the user
     await agent.GetAccessTokenAsync(),     // actor: the agent's own token
     "https://api.example.com",             // becomes the token's aud
-    new[] { "documents.read" });           // optional: narrow further
+    new[] { "documents:read" });           // optional: narrow further
 
 Console.WriteLine(delegated.ExpiresIn);
 // Send delegated.AccessToken as a bearer token to https://api.example.com only.
@@ -143,7 +143,7 @@ public class Delegate {
             userAccessToken,             // subject: the user
             agent.accessToken(),         // actor: the agent's own token
             "https://api.example.com",   // becomes the token's aud
-            List.of("documents.read"));  // optional: narrow further
+            List.of("documents:read"));  // optional: narrow further
 
         System.out.println(delegated.expiresIn());
         // Send delegated.accessToken() as a bearer token to https://api.example.com only.
@@ -178,7 +178,7 @@ $agentTokens = $lumo->auth->clientCredentials(
 $delegated = $lumo->delegation->exchange(
     $userAccessToken,                    // subject: the user
     $agentTokens['access_token'],        // actor: the agent's own token
-    scopes: ['documents.read'],          // optional: narrow further
+    scopes: ['documents:read'],          // optional: narrow further
     resource: 'https://api.example.com', // becomes the token's aud
 );
 

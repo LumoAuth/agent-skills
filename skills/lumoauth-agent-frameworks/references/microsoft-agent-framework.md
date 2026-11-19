@@ -28,7 +28,7 @@ def search_company_documents(
     query: Annotated[str, Field(description="The search query for company documents")],
 ) -> str:
     """Search internal company documents for the given query."""
-    refusal = check("documents.read", query=query)
+    refusal = check("documents:read", query=query)
     if refusal:
         return refusal
     response = call_api(
@@ -43,7 +43,7 @@ def query_financial_mcp(
     metric: Annotated[str, Field(description="The financial metric to retrieve")],
 ) -> str:
     """Query the financial metrics MCP server."""
-    refusal = check("mcp.financial", metric=metric)
+    refusal = check("financial_metrics:read", metric=metric)
     if refusal:
         return refusal
     try:
@@ -70,7 +70,7 @@ def wire_transfer(
     invoice: Annotated[str, Field(description="The invoice number")],
 ) -> str:
     """Wire money to a vendor to pay an invoice. Needs human approval."""
-    refusal = check("payments.wire", vendor=vendor, amount=amount)
+    refusal = check("payments:wire", vendor=vendor, amount=amount)
     if refusal:
         return refusal
     refusal = approve(
@@ -169,7 +169,7 @@ async Task<string?> CheckAsync(string action, object? context = null)
 [Description("Search internal company documents for the given query.")]
 async Task<string> SearchCompanyDocuments([Description("Search query")] string query)
 {
-    if (await CheckAsync("documents.read", new { query }) is { } refusal) return refusal;
+    if (await CheckAsync("documents:read", new { query }) is { } refusal) return refusal;
 
     // 4b. Protected API. On 403 with Insufficient-Authorization-Details the helper
     //     requests that JIT permission and retries once.
@@ -185,7 +185,7 @@ async Task<string> SearchCompanyDocuments([Description("Search query")] string q
 [Description("Query the secured financial metrics MCP server.")]
 async Task<string> QueryFinancialMcp([Description("The financial metric")] string metric)
 {
-    if (await CheckAsync("mcp.financial", new { metric }) is { } refusal) return refusal;
+    if (await CheckAsync("financial_metrics:read", new { metric }) is { } refusal) return refusal;
 
     // 4a. Token exchange: a token that works only at this MCP server.
     string mcpToken = await lumo.McpTokenAsync("https://mcp.example.com/mcp");
@@ -199,7 +199,7 @@ async Task<string> WireTransfer(
     [Description("The amount in US dollars")] int amount,
     [Description("The invoice number")] string invoice)
 {
-    if (await CheckAsync("payments.wire", new { vendor, amount }) is { } refusal) return refusal;
+    if (await CheckAsync("payments:wire", new { vendor, amount }) is { } refusal) return refusal;
 
     // 3. Human approval on the approver's phone. Anything other than approval is an exception.
     try

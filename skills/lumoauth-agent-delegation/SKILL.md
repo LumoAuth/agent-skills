@@ -87,8 +87,8 @@ Requirements that an admin must meet:
    `canActOnBehalfOfUsers` (check with `lumo agents get <agent-id>`). Set it in the portal: the
    Admin API create and update requests do not change it.
 2. The agent's capabilities cover the scopes that it should act with. A user token with
-   `documents.read` and an agent with the capability `documents.read` or `documents.*` gives a
-   delegated token with `documents.read`. No overlap gives `invalid_scope`.
+   `documents:read` and an agent with the capability `documents:read` or `documents:*` gives a
+   delegated token with `documents:read`. No overlap gives `invalid_scope`.
 
 Both tokens are secrets. The exchange runs on a server. Never send the agent's token or its secret
 to a browser, and never log any of the three tokens. Delegation depends on the organization's plan
@@ -128,7 +128,7 @@ def delegated_token_for(session_id: str, user_access_token: str) -> str:
     chain.set_user_token(session_id, user_access_token)
     return chain.exchange(
         session_id,
-        scopes=["documents.read"],            # optional: narrow further
+        scopes=["documents:read"],            # optional: narrow further
         resource="https://api.example.com",   # becomes the token's aud
     )
 ```
@@ -153,7 +153,7 @@ export async function delegatedTokenFor(sessionId: string, userAccessToken: stri
   agent.delegation.setUserToken(sessionId, userAccessToken);
   return agent.delegation.exchange(
     sessionId,
-    ['documents.read'],                       // optional: narrow further
+    ['documents:read'],                       // optional: narrow further
     { resource: 'https://api.example.com' },  // becomes the token's aud
   );
 }
@@ -195,7 +195,7 @@ these claims:
   "sub": "8b1f6c1e-2d0a-4f6b-9c57-0c2f4a9e7d11",
   "aud": "https://api.example.com",
   "client_id": "agt_0123456789abcdef",
-  "scope": "documents.read",
+  "scope": "documents:read",
   "act": {
     "sub": "agent_agt_0123456789abcdef",
     "iss": "https://app.lumoauth.dev/orgs/acme-corp/api/v1",
@@ -217,7 +217,7 @@ const verifier = createAccessTokenVerifier({
 
 export async function authorize(method: string, publicUrl: string, headers: Record<string, string | string[] | undefined>) {
   const claims = await verifier.verifyRequest({ method, url: publicUrl, headers }); // throws AccessTokenError
-  if (!accessTokenScopes(claims).includes('documents.read')) {
+  if (!accessTokenScopes(claims).includes('documents:read')) {
     throw new Error('insufficient_scope');
   }
   return {
@@ -240,7 +240,7 @@ def authorize(bearer_token: str) -> dict:
         issuer="https://app.lumoauth.dev/orgs/acme-corp/api/v1",
         resource="https://api.example.com",
     )
-    if not claims.has_scope("documents.read"):
+    if not claims.has_scope("documents:read"):
         raise PermissionError("insufficient_scope")
     return {
         "user_id": claims.sub,            # the user
@@ -275,7 +275,7 @@ curl -X POST "$LUMOAUTH_URL/orgs/$LUMOAUTH_ORG_ID/api/v1/oauth/token" \
   -d "actor_token=$AGENT_ACCESS_TOKEN" \
   -d "actor_token_type=urn:ietf:params:oauth:token-type:access_token" \
   -d "resource=https://api.example.com" \
-  -d "scope=documents.read"
+  -d "scope=documents:read"
 ```
 
 The response has `access_token`, `token_type`, `expires_in`, `scope` and

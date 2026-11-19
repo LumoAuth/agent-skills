@@ -25,7 +25,7 @@ LumoAuth assesses each request and gives it a risk level: `low`, `medium`, `high
 | An ABAC policy explicitly denies it | Denied at once. Not sent to a reviewer |
 | An ABAC policy or relationship explicitly allows it | Lowers the assessed risk. Never moves a critical type past human review |
 
-Capability matching: LumoAuth turns each requested action into `type.action` (for example `invoices.approve`). A capability `invoices.approve` or `invoices.*` covers it. A request with no action is checked as the bare type (`invoices`), which `invoices.*` does not cover. Names compare without regard to case, `:` and `-`.
+Capability matching: LumoAuth turns each requested action into `type:action` (for example `invoices:approve`). A capability `invoices:approve` or `invoices:*` covers it. A request with no action is checked as the bare type (`invoices`), which `invoices:*` does not cover. Names compare without regard to case, so `Invoices:Approve` matches `invoices:approve`. Write capabilities as `<resource>:<action>`: LumoAuth rejects a capability with a `.`. A `-` is part of a name.
 
 To make a routine request pass without a prompt, give the agent the matching capability (see `lumoauth-agent-identity`) or write an authorization policy (see `lumoauth-abac`), and keep the action out of the critical types.
 

@@ -29,7 +29,7 @@ MCP_URL = "https://mcp.example.com/mcp"
 
 def fetch_document(document_id: str) -> dict:
     """Fetch a sensitive document from the protected API."""
-    refusal = check("documents.read", id=document_id)
+    refusal = check("documents:read", id=document_id)
     if refusal:
         return {"error": refusal}
     response = call_api(
@@ -44,7 +44,7 @@ def fetch_document(document_id: str) -> dict:
 
 def query_financial_mcp(metric: str) -> dict:
     """Query the financial metrics MCP server for one metric."""
-    refusal = check("mcp.financial", metric=metric)
+    refusal = check("financial_metrics:read", metric=metric)
     if refusal:
         return {"error": refusal}
     try:
@@ -69,7 +69,7 @@ def query_financial_mcp(metric: str) -> dict:
 
 def create_report(title: str, content: str) -> dict:
     """Create a report and send it to the board list. Needs human approval."""
-    refusal = check("reports.send", title=title)
+    refusal = check("reports:send", title=title)
     if refusal:
         return {"error": refusal}
     refusal = approve(

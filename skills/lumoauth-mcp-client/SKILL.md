@@ -142,7 +142,7 @@ The client does these steps. [references/authorization-flow.md](references/autho
 
 An agent that is registered in LumoAuth exchanges its own token for one that names the MCP server (RFC 8693 token exchange with the `resource` parameter). The SDKs do this in one call. Pass the server's Resource URI.
 
-When the MCP server defines scopes, the agent needs a capability that covers at least one of them, for example the capability `mcp.read` for the scope `mcp:read`. The token then carries the server's scopes that the agent's capabilities cover. When none is covered, the exchange fails with `invalid_scope`.
+When the MCP server defines scopes, the agent needs a capability that covers at least one of them, for example the capability `mcp:read` or `mcp:*` for the scope `mcp:read`. The token then carries the server's scopes that the agent's capabilities cover. When none is covered, the exchange fails with `invalid_scope`.
 
 TypeScript (`npm install @lumoauth/agent`, version 1.4.0, Node 18 or later):
 

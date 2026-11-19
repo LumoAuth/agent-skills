@@ -17,7 +17,7 @@ Show the user the command before you run it.
 lumo agents create \
   --name "Report script" \
   --type api_key \
-  --capabilities reports.read \
+  --capabilities reports:read \
   --key-expires-in-days 90
 ```
 
@@ -44,7 +44,7 @@ curl "https://app.lumoauth.dev/orgs/acme-corp/api/v1/agents/me" \
 curl -X POST "https://app.lumoauth.dev/orgs/acme-corp/api/v1/agents/ask" \
   -H "Authorization: Bearer $AGENT_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"action": "reports.read"}'
+  -d '{"action": "reports:read"}'
 ```
 
 LumoAuth accepts the key on the agent routes, the just-in-time permission routes, the
@@ -75,7 +75,7 @@ use LumoAuth\LumoAuth;
 
 $agent = new LumoAuth(orgId: 'acme-corp', tokenProvider: fn () => getenv('AGENT_API_KEY'));
 
-if ($agent->agents->isAllowed('reports.read')) {
+if ($agent->agents->isAllowed('reports:read')) {
     // run the report
 }
 ```

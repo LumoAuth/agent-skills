@@ -28,7 +28,7 @@ MCP_URL = "https://mcp.example.com/mcp"
 @tool
 def search_company_documents(query: str) -> str:
     """Search internal company documents."""
-    refusal = check("documents.read", query=query)
+    refusal = check("documents:read", query=query)
     if refusal:
         return refusal
     response = call_api(
@@ -42,7 +42,7 @@ def search_company_documents(query: str) -> str:
 @tool
 def query_financial_mcp(metric: str) -> str:
     """Query the financial metrics MCP server for one metric."""
-    refusal = check("mcp.financial", metric=metric)
+    refusal = check("financial_metrics:read", metric=metric)
     if refusal:
         return refusal
     try:
@@ -66,7 +66,7 @@ def query_financial_mcp(metric: str) -> str:
 @tool
 def wire_transfer(vendor: str, amount: int, invoice: str) -> str:
     """Wire money in US dollars to a vendor to pay an invoice."""
-    refusal = check("payments.wire", vendor=vendor, amount=amount)
+    refusal = check("payments:wire", vendor=vendor, amount=amount)
     if refusal:
         return refusal
     refusal = approve(
@@ -146,7 +146,7 @@ def needs_approval(state: State) -> str:
 
 def ask_human(state: State):
     args = state["messages"][-1].tool_calls[0]["args"]
-    refusal = check("payments.wire", vendor=args["vendor"], amount=args["amount"])
+    refusal = check("payments:wire", vendor=args["vendor"], amount=args["amount"])
     if refusal is None:
         refusal = approve(
             f"wire-{args['invoice']}-{time.strftime('%H%M%S')}",

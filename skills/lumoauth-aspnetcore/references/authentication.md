@@ -150,7 +150,7 @@ How the handler decides:
   `capability`, and every other UserInfo claim under its own name.
 
 The handler accepts user tokens and agent tokens. `user.IsLumoAgent()` tells them apart, and
-`user.GetCapabilities()` / `user.HasCapability("tool:search_web")` read agent capabilities.
+`user.GetCapabilities()` / `user.HasCapability("web:search")` read agent capabilities.
 
 Standard authorization works on these claims:
 

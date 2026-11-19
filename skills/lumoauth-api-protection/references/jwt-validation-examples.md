@@ -91,7 +91,7 @@ def verify_access_token(authorization: str | None, required_scope: str | None = 
 ```
 
 In a request handler, call `verify_access_token(request.headers.get("Authorization"),
-"read:reports")`. On `AuthError`, answer with `exc.status` and the header
+"reports:read")`. On `AuthError`, answer with `exc.status` and the header
 `WWW-Authenticate: exc.challenge`. For FastAPI, Flask and Django with the LumoAuth package, use
 `lumoauth-fastapi` or `lumoauth-python`.
 
@@ -230,7 +230,7 @@ func main() {
 	reports := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"subject": auth.Claims(r)["sub"]})
 	})
-	http.Handle("/reports", verifier.Require("read:reports")(reports))
+	http.Handle("/reports", verifier.Require("reports:read")(reports))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 ```
@@ -281,7 +281,7 @@ static bool HasScope(ClaimsPrincipal user, string scope) =>
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("reports:read", policy => policy
         .RequireAuthenticatedUser()
-        .RequireAssertion(context => HasScope(context.User, "read:reports")));
+        .RequireAssertion(context => HasScope(context.User, "reports:read")));
 
 var app = builder.Build();
 
@@ -382,7 +382,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/reports/**").hasAuthority("SCOPE_read:reports")
+                        .requestMatchers("/reports/**").hasAuthority("SCOPE_reports:read")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();

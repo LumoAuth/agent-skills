@@ -39,7 +39,7 @@ Go straight to the model skill when the model is already clear:
 | Per-object access, sharing, folders, teams owning resources | `lumoauth-rebac` |
 | The subject is an AI agent, or a human must approve an action | `lumoauth-agent-identity`, `lumoauth-agent-approvals` |
 | Validate the access token of an incoming request | `lumoauth-api-protection` |
-| OAuth scopes on a token (`read:reports`) | `lumoauth-oauth-oidc` |
+| OAuth scopes on a token (`reports:read`) | `lumoauth-oauth-oidc` |
 
 ## Before you start
 

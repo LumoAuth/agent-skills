@@ -15,12 +15,12 @@ Pass the **Resource URI** (an absolute `https://` URL without a fragment; `http:
 ## Scopes of the token
 
 - The SDK helpers send no `scope`. The token then gets the MCP server's scopes that the agent's capabilities cover. When the server defines scopes and none is covered, the exchange fails with `invalid_scope`.
-- Capabilities match in any spelling: the capability `files.read`, `files:read` or `files.*` covers the scope `files:read`. The token carries the scope as the MCP server spells it.
+- Capabilities match in the stored form `<resource>:<action>`: the capability `files:read` or `files:*` covers the scope `files:read`, and also `files.read` when that is the MCP server's spelling. Write the agent's capabilities with `:`, because LumoAuth rejects a capability such as `files.read`. A `-` is part of a name. The token carries the scope as the MCP server spells it.
 - A scope that is not in the server's scope list fails with `invalid_scope`, even when a capability covers it.
 - The lifetime is at most the MCP server's token lifetime.
 - The list of allowed clients on the MCP server does not apply to agents. Per-tool grants determine which tools an agent may run.
 
-To let an agent reach a server, give the agent a capability for each scope that it needs (`lumoauth-agent-identity`), for example `mcp.read`.
+To let an agent reach a server, give the agent a capability for each scope that it needs (`lumoauth-agent-identity`), for example `mcp:read`.
 
 An agent that acts for a signed-in user uses the on-behalf-of exchange, which also takes one `resource`. That flow is in `lumoauth-agent-delegation`.
 

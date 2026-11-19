@@ -98,7 +98,7 @@ lumo agents create \
   --name "Research assistant" \
   --type client_secret \
   --description "Reads documents and searches the web" \
-  --capabilities document.read,tool.search_web
+  --capabilities document:read,web:search
 ```
 
 `--type` defaults to `api_key`, so always pass it. The response contains `agentId` and, once,
@@ -115,7 +115,7 @@ curl -X POST "https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/agents" \
     "name": "Research assistant",
     "identityType": "client_secret",
     "description": "Reads documents and searches the web",
-    "capabilities": ["document.read", "tool.search_web"]
+    "capabilities": ["document:read", "web:search"]
   }'
 ```
 
@@ -131,10 +131,14 @@ Other `lumo agents` commands: `list`, `get <agent-id>`, `update <agent-id>`, `en
 
 ### 3. Give the agent only the capabilities that it needs
 
-Capabilities are the agent's permission list. LumoAuth stores them in one form: lower case, with
-`:` and `-` turned into `.`. `Read:Documents` is stored as `read.documents`, and both spellings
-match. `document.*` covers every action under `document.`. A bare `*` covers everything; do not
-use it. An admin cannot grant a capability that the admin does not hold.
+Capabilities are the agent's permission list, and also its OAuth scope values. Write each one as
+`<resource>:<action>`, such as `document:read`. LumoAuth stores them in that form, in lower case.
+LumoAuth rejects the dot form: a capability such as `document.read` gets `400`, a token request for
+the organization's API with `scope=document.read` gets `invalid_scope`, and an Ask API call with
+the action `document.read` gets `invalid_action`. As a capability, the LumoAuth permission
+`users.delete` is written `users:delete`. A `-` is part of a name (`pull-requests:comment`).
+`document:*` covers every action under `document:`. A bare `*` covers everything; do not use it. An admin cannot grant a
+capability that the admin does not hold.
 
 ### 4. Set the environment
 
@@ -163,7 +167,7 @@ if not agent.authenticate():
 
 
 def read_document(doc_id: str) -> dict:
-    decision = agent.ask("document.read", {"id": doc_id})
+    decision = agent.ask("document:read", {"id": doc_id})
     if not decision["allowed"]:
         raise PermissionError(decision["reason"])
     # The agent may read the document. Call your own API here.
@@ -177,7 +181,7 @@ print(read_document("doc_99"))
 
 `authenticate()` runs the client credentials grant and returns `True` or `False`. The SDK renews
 the token before it expires. `ask()` returns `allowed`, `reason`, `decided_by` and `audit_id`;
-`is_allowed(action, context)` returns only the boolean. `has_capability("document.read")` checks
+`is_allowed(action, context)` returns only the boolean. `has_capability("document:read")` checks
 the registered capability list locally and applies no policy; prefer `ask()` before real actions.
 
 ### 6. Authenticate and check before each action (TypeScript)
@@ -195,7 +199,7 @@ const agent = new LumoAgent();
 await agent.authenticate(); // throws when the credential is refused
 
 async function readDocument(docId: string): Promise<{ id: string }> {
-  const decision = await agent.ask('document.read', { id: docId });
+  const decision = await agent.ask('document:read', { id: docId });
   if (!decision.allowed) {
     throw new Error(decision.reason ?? 'Not allowed');
   }
@@ -264,7 +268,7 @@ curl -X POST "$LUMOAUTH_URL/orgs/$LUMOAUTH_ORG_ID/api/v1/oauth/token" \
 curl -X POST "$LUMOAUTH_URL/orgs/$LUMOAUTH_ORG_ID/api/v1/agents/ask" \
   -H "Authorization: Bearer $AGENT_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"action": "document.read", "context": {"id": "doc_99"}}'
+  -d '{"action": "document:read", "context": {"id": "doc_99"}}'
 ```
 
 An optional `scope` on the token request can only narrow the agent's capabilities. The token
@@ -290,7 +294,8 @@ token's scope. `GET …/oauth/userinfo` returns `capabilities` and `budget_polic
 | The agent created by `lumo agents create` has an `apiKey`, no `clientSecret` | `--type` was left out, so the agent is an `api_key` agent | Register a new agent with `--type client_secret`. The type cannot be changed |
 | `LumoAuthConfigError`: agent credentials required | `AGENT_CLIENT_ID` or `AGENT_CLIENT_SECRET` is not set in the process | Export them, or pass `client_id` / `client_secret` (Python) or `clientId` / `clientSecret` (JS) |
 | "Pass clientSecret or privateKey, not both" | Both a secret and `AGENT_PRIVATE_KEY` reach the constructor | An agent uses one method. Remove one |
-| `ask` says `allowed: false` for `read:documents` although the agent has it | The token was requested with a narrower `scope` | Request the token without `scope`, or include the action in it |
+| `ask` says `allowed: false` for `document:read` although the agent has it | The token was requested with a narrower `scope` | Request the token without `scope`, or include the action in it |
+| `400` "Not a valid capability: … the dot form (invoices.read) is not accepted", `invalid_scope` on the token request, or `invalid_action` from `ask` | A capability, a `scope` value or an action is written with a `.` | Write it as `<resource>:<action>`, such as `invoices:read` |
 | HTTP `429` on `ask` or on the token request | The budget is spent, or a rate limit was hit | Read `budget_policy.exhausted` from UserInfo. Wait for the window or ask an admin to raise the limit |
 | Token and cost limits never trigger | The agent does not report usage | Call `report_usage` / `reportUsage` after model calls |
 | `403 insufficient_scope` on a usage report | The token was narrowed with `scope` | Report with a token that carries all of the agent's capabilities |

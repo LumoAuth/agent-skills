@@ -69,7 +69,7 @@ Content-Type: application/x-www-form-urlencoded
 OAuth-Client-Attestation: eyJ0eXAiOiJvYXV0aC1jbGllbnQtYXR0ZXN0YXRpb24rand0Iiwi...
 OAuth-Client-Attestation-PoP: eyJ0eXAiOiJvYXV0aC1jbGllbnQtYXR0ZXN0YXRpb24tcG9wK2p3dCIsIm...
 
-grant_type=client_credentials&client_id=CLIENT_ID&scope=read%3Areports
+grant_type=client_credentials&client_id=CLIENT_ID&scope=reports%3Aread
 ```
 
 Payload of the PoP JWT for this request:

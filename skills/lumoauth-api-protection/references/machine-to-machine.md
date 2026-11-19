@@ -28,7 +28,7 @@ curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/clients \
   -d '{
     "name": "Billing worker",
     "grantTypes": ["client_credentials"],
-    "scopes": ["read:reports"],
+    "scopes": ["reports:read"],
     "isConfidential": true
   }'
 ```
@@ -53,7 +53,7 @@ Client authentication: HTTP Basic with the client ID and secret, or `client_id` 
 curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/token \
   -u "$LUMOAUTH_CLIENT_ID:$LUMOAUTH_CLIENT_SECRET" \
   -d "grant_type=client_credentials" \
-  -d "scope=read:reports" \
+  -d "scope=reports:read" \
   -d "resource=https://api.example.com"
 ```
 
@@ -62,7 +62,7 @@ curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/token \
   "access_token": "eyJ...",
   "token_type": "Bearer",
   "expires_in": 3600,
-  "scope": "read:reports"
+  "scope": "reports:read"
 }
 ```
 
@@ -134,7 +134,7 @@ export async function getServiceToken(resource: string, scope: string): Promise<
 
 /** Example call. */
 export async function fetchReports(): Promise<unknown> {
-  const token = await getServiceToken("https://api.example.com", "read:reports");
+  const token = await getServiceToken("https://api.example.com", "reports:read");
   const res = await fetch("https://api.example.com/reports", {
     headers: { Authorization: `Bearer ${token}` },
   });

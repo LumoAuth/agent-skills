@@ -293,7 +293,7 @@ protect := lumoauth.RequireAccessToken(lumoauth.AccessTokenVerifyOptions{
 })
 mux.Handle("/reports", protect(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	claims, ok := lumoauth.AccessTokenFromContext(r.Context())
-	if !ok || !claims.HasScope("read:reports") {
+	if !ok || !claims.HasScope("reports:read") {
 		http.Error(w, "insufficient scope", http.StatusForbidden)
 		return
 	}

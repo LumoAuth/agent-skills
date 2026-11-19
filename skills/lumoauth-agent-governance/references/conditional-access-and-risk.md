@@ -39,7 +39,7 @@ Each line on the agent page says why it matters and links to the page that fixes
 | Public keys | A private key JWT agent has no public key registered, so it cannot sign in | Register the key |
 | Attestation | The agent never attested, or its last attestation is old | Check the workload |
 | Credentials | The API key has no expiry, expires soon or has expired; a shared secret is old | Set an expiry; rotate |
-| Capabilities | None (the agent is refused everywhere), a bare `*`, or a `resource.*` wildcard | Grant the exact capabilities that the tools need |
+| Capabilities | None (the agent is refused everywhere), a bare `*`, or a `resource:*` wildcard | Grant the exact capabilities that the tools need |
 | Budget | No daily limit, step cap or timeout | Set a budget |
 | Acting for people | *May act on behalf of users* is on without a consent step for the user | Use delegation with consent (`lumoauth-agent-delegation`) or turn the setting off |
 | Access rule | No enabled access rule applies to the agent | Create a rule (below) |

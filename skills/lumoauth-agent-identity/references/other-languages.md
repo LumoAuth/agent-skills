@@ -50,7 +50,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	decision, err := agent.Ask(ctx, "document.read", map[string]any{"id": "doc_99"})
+	decision, err := agent.Ask(ctx, "document:read", map[string]any{"id": "doc_99"})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +98,7 @@ using var agent = LumoAgent.FromEnvironment();
 // Optional: fail early when the credential is wrong.
 await agent.AuthenticateAsync();
 
-AgentAskResult decision = await agent.AskAsync("document.read", new { id = "doc_99" });
+AgentAskResult decision = await agent.AskAsync("document:read", new { id = "doc_99" });
 if (!decision.Allowed)
 {
     throw new InvalidOperationException(decision.Reason ?? "Not allowed");
@@ -141,7 +141,7 @@ public class AgentMain {
         // Optional: fail early when the credential is wrong.
         agent.authenticate();
 
-        AgentAskResult decision = agent.ask("document.read", Map.of("id", "doc_99"));
+        AgentAskResult decision = agent.ask("document:read", Map.of("id", "doc_99"));
         if (!decision.allowed()) {
             throw new IllegalStateException(decision.reason());
         }
@@ -186,7 +186,7 @@ $tokens = (new LumoAuth())->auth->clientCredentials(
 
 $agent = new LumoAuth(tokenProvider: fn () => $tokens['access_token']);
 
-$decision = $agent->agents->ask('document.read', ['id' => 'doc_99']);
+$decision = $agent->agents->ask('document:read', ['id' => 'doc_99']);
 if (!($decision['allowed'] ?? false)) {
     throw new RuntimeException($decision['reason'] ?? 'Not allowed');
 }

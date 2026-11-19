@@ -199,7 +199,7 @@ not AAuth auth tokens. An AAuth agent gets such a token from the bridge endpoint
 | `grant_type` | `urn:ietf:params:oauth:grant-type:token-exchange` |
 | `subject_token` | The agent token (`agent+jwt`) |
 | `subject_token_type` | `urn:lumoauth:params:oauth:token-type:aauth-token` (optional) |
-| `scope` | Optional. Narrows the agent's capabilities; a scope outside them is `invalid_scope` |
+| `scope` | Optional. Narrows the agent's capabilities; write values as `<resource>:<action>`. A scope outside them, or a value with a `.`, is `invalid_scope` |
 
 The answer is an access token with `"token_type": "DPoP"`, `"expires_in": 300`, the `agent_id`
 (`agt_…`) and `cnf_jkt`. The token is bound to the agent's signing key: every call made with it

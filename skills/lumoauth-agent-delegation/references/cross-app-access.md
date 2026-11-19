@@ -63,7 +63,7 @@ curl -X POST "https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/token" \
   -d "subject_token=$USER_ID_TOKEN" \
   -d "subject_token_type=urn:ietf:params:oauth:token-type:id_token" \
   -d "audience=https://auth.partner.example.com" \
-  -d "scope=documents.read"
+  -d "scope=documents:read"
 ```
 
 | Parameter | Value |
@@ -85,7 +85,7 @@ Response:
   "issued_token_type": "urn:ietf:params:oauth:token-type:id-jag",
   "token_type": "N_A",
   "expires_in": 300,
-  "scope": "documents.read"
+  "scope": "documents:read"
 }
 ```
 
@@ -177,7 +177,7 @@ came from in `act`:
   "sub": "8b1f6c1e-2d0a-4f6b-9c57-0c2f4a9e7d11",
   "aud": "https://api.example.com",
   "client_id": "partner_backend",
-  "scope": "documents.read",
+  "scope": "documents:read",
   "act": {
     "sub": "partner_backend",
     "iss": "https://idp.customer.example.com",

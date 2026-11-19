@@ -38,7 +38,7 @@ https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/authorize
   ?response_type=code
   &client_id=CLIENT_ID
   &redirect_uri=https%3A%2F%2Fapp.example.com%2Fcallback
-  &scope=openid%20read%3Areports
+  &scope=openid%20reports%3Aread
   &state=STATE
   &code_challenge=CODE_CHALLENGE
   &code_challenge_method=S256
@@ -75,7 +75,7 @@ Machine to machine:
 curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/token \
   -u "$LUMOAUTH_CLIENT_ID:$LUMOAUTH_CLIENT_SECRET" \
   -d "grant_type=client_credentials" \
-  -d "scope=read:reports" \
+  -d "scope=reports:read" \
   -d "resource=https://api.example.com"
 ```
 

@@ -33,7 +33,7 @@ WWW-Authenticate: Bearer realm="api", error="invalid_token", error_description="
 
 ```http
 HTTP/1.1 403 Forbidden
-WWW-Authenticate: Bearer realm="api", error="insufficient_scope", scope="write:reports"
+WWW-Authenticate: Bearer realm="api", error="insufficient_scope", scope="reports:write"
 ```
 
 Rules:
@@ -80,11 +80,11 @@ purpose.
 
 | Guideline | Example |
 |---|---|
-| Name scopes by resource and action | `read:reports`, `write:reports`, `delete:reports` |
-| One scope per route group, not per route | All `GET /reports/*` routes need `read:reports` |
-| Separate reading from writing | A reporting tool gets only `read:reports` |
-| Keep dangerous actions in their own scope | `delete:reports`, `admin:billing` |
-| Do not encode object IDs or tenants in scopes | Not `read:report:4821`. Use an authorization check for objects |
+| Name scopes by resource and action | `reports:read`, `reports:write`, `reports:delete` |
+| One scope per route group, not per route | All `GET /reports/*` routes need `reports:read` |
+| Separate reading from writing | A reporting tool gets only `reports:read` |
+| Keep dangerous actions in their own scope | `reports:delete`, `billing:admin` |
+| Do not encode object IDs or tenants in scopes | Not `reports:read:4821`. Use an authorization check for objects |
 | Match scope strings exactly | Split the `scope` claim on spaces and compare whole strings; no prefix matching |
 | Give each application the smallest set | Under **Configuration → Allowed scopes** |
 

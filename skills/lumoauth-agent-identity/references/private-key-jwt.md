@@ -61,7 +61,7 @@ curl -X POST "https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/agents" \
     "name": "Invoice agent",
     "identityType": "private_key_jwt",
     "jwksUri": "https://agent.example.com/.well-known/jwks.json",
-    "capabilities": ["invoices.read"]
+    "capabilities": ["invoices:read"]
   }'
 ```
 
@@ -88,7 +88,7 @@ from lumoauth import LumoAuthAgent
 agent = LumoAuthAgent()   # finds AGENT_PRIVATE_KEY and signs an assertion for each token request
 if not agent.authenticate():
     raise SystemExit("Agent authentication failed")
-print(agent.ask("invoices.read")["allowed"])
+print(agent.ask("invoices:read")["allowed"])
 ```
 
 ```ts
@@ -96,7 +96,7 @@ import { LumoAgent } from '@lumoauth/agent';
 
 const agent = new LumoAgent();   // finds AGENT_PRIVATE_KEY and signs an assertion for each token request
 await agent.authenticate();
-console.log(await agent.isAllowed('invoices.read'));
+console.log(await agent.isAllowed('invoices:read'));
 ```
 
 ```go
@@ -117,7 +117,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	allowed, err := agent.IsAllowed(ctx, "invoices.read", nil)
+	allowed, err := agent.IsAllowed(ctx, "invoices:read", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

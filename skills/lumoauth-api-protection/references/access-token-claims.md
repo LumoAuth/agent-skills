@@ -80,7 +80,7 @@ Example payload of a user token for one API:
   "iat": 1767225600,
   "jti": "9f2c4e5a7b8d4c1e9a3f6b2d8c7e5f41",
   "client_id": "<client_id>",
-  "scope": "openid email read:reports",
+  "scope": "openid email reports:read",
   "auth_time": 1767225590,
   "amr": ["pwd"],
   "email": "user@example.com",
@@ -107,7 +107,7 @@ Example payload of a user token for one API:
   "iat": 1767225600,
   "jti": "5d1e8a...",
   "client_id": "<client_id>",
-  "scope": "read:reports",
+  "scope": "reports:read",
   "azp": "<client_id>",
   "gty": "client_credentials"
 }

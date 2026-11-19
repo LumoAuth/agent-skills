@@ -43,7 +43,7 @@ Active token:
 {
   "active": true,
   "token_type": "Bearer",
-  "scope": "openid email read:reports",
+  "scope": "openid email reports:read",
   "client_id": "<client_id>",
   "sub": "4821",
   "exp": 1767229200,

@@ -95,7 +95,7 @@ def whoami() -> dict:
 - As `auth=` on a component, a failed check hides the component from the caller.
 - In `AuthMiddleware(auth=require_scopes(...))`, a missing scope becomes an `insufficient_scope` step-up, so the client can ask the user for the scope.
 - `require_scopes()` needs at least one scope. A granted scope that ends in `:*` covers the scopes under that prefix (`invoices:*` covers `invoices:refund`). Every other scope compares exactly, so `invoices.*` is an ordinary scope.
-- `require_agent("billing.reminders")` admits only agent tokens that hold every listed capability. Capabilities match as LumoAuth stores them: lower case, with `:` and `-` read as `.`; `users.*` covers `users.delete`.
+- `require_agent("reminders:send")` admits only agent tokens that hold every listed capability. Capabilities match as LumoAuth stores them: `<resource>:<action>` in lower case, with a `-` kept as part of the name; `users:*` covers `users:delete`. Name capabilities in that form, such as `reminders:send`.
 - `require_user()` admits people only. `require_user(allow_delegation=True)` also admits an agent that acts for a person.
 
 ## `auth.tool_policy()`: per-tool policy from LumoAuth

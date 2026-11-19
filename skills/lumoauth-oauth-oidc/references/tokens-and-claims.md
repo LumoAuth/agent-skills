@@ -83,7 +83,7 @@ token for one API, request `resource=https://api.example.com` (see `lumoauth-oau
 | `phone` | `phone_number`, `phone_number_verified` |
 | `address` | `address` |
 | `offline_access` | Accepted. It does not decide whether a refresh token is issued |
-| Custom scopes, for example `read:reports` | Created in the organization and allowed per application. They appear in the access token's `scope` claim for the API to check |
+| Custom scopes, for example `reports:read` | Created in the organization and allowed per application. They appear in the access token's `scope` claim for the API to check |
 
 Rules:
 

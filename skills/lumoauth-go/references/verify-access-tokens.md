@@ -53,7 +53,7 @@ func main() {
 	})
 
 	mux := http.NewServeMux()
-	mux.Handle("/orders", protect(requireScope("read:orders", http.HandlerFunc(orders))))
+	mux.Handle("/orders", protect(requireScope("orders:read", http.HandlerFunc(orders))))
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 

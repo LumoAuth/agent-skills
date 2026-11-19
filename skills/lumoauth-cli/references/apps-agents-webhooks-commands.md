@@ -71,7 +71,7 @@ Key lifetime flags (for an API key agent; use at most one):
 
 ```bash
 lumo agents create --name "invoice-bot" --type api_key \
-  --capabilities invoices.read,invoices.send --key-expires-in-days 90 -o json
+  --capabilities invoices:read,invoices:send --key-expires-in-days 90 -o json
 lumo agents rotate-credentials agt_3f9a51c07be24d18 --key-expires-in-days 90 -o json
 ```
 

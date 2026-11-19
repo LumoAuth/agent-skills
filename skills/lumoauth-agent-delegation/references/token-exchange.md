@@ -31,7 +31,7 @@ an organization and are not covered here.
   "access_token": "eyJ...",
   "token_type": "Bearer",
   "expires_in": 3600,
-  "scope": "documents.read",
+  "scope": "documents:read",
   "issued_token_type": "urn:ietf:params:oauth:token-type:access_token"
 }
 ```
@@ -64,9 +64,11 @@ logout tokens, transaction tokens, identity assertions and test tokens from the 
 `resource` that names a registered MCP server brings that server's policy with it (scope
 vocabulary, lifetime, Require DPoP). Use `lumoauth-mcp-client` for that case.
 
-The scope strings in the result are the user's own: LumoAuth does not rewrite them. Capability
-matching ignores case and treats `:`, `-` and `.` alike, so the capability `documents.*` covers the
-scope `documents:read`.
+The scope strings in the result are the user's own: LumoAuth does not rewrite them, and a user's
+scope may contain a `.`. Capability matching ignores case, so the capability `documents:*` covers
+the scope `documents:read`, and also a user's scope spelled `documents.read`. Write the agent's
+capabilities as `<resource>:<action>`: LumoAuth rejects a capability with a `.`. A `-` is part of
+a name.
 
 ## The `act` claim
 
@@ -74,7 +76,7 @@ scope `documents:read`.
 {
   "sub": "8b1f6c1e-2d0a-4f6b-9c57-0c2f4a9e7d11",
   "aud": "https://api.example.com",
-  "scope": "documents.read",
+  "scope": "documents:read",
   "act": {
     "sub": "agent_agt_0123456789abcdef",
     "iss": "https://app.lumoauth.dev/orgs/acme-corp/api/v1",
@@ -126,7 +128,7 @@ def token_for_sub_agent(session_id: str, user_access_token: str, sub_agent_token
     return chain.delegate_to_sub_agent(
         session_id,
         sub_agent_token,                     # agent B's own access token
-        scopes=["documents.read"],
+        scopes=["documents:read"],
         resource="https://api.example.com",  # the API that B will call
     )
 ```
@@ -141,7 +143,7 @@ const agentA = new LumoAgent();
 export async function tokenForSubAgent(sessionId: string, userAccessToken: string, subAgentToken: string): Promise<string> {
   agentA.delegation.setUserToken(sessionId, userAccessToken);
   await agentA.delegation.exchange(sessionId); // user -> A, no resource: aud is agent A
-  return agentA.delegation.delegateToSubAgent(sessionId, subAgentToken, ['documents.read'], {
+  return agentA.delegation.delegateToSubAgent(sessionId, subAgentToken, ['documents:read'], {
     resource: 'https://api.example.com',
   });
 }

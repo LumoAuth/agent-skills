@@ -137,7 +137,7 @@ With no rule, nothing changes. With rules, the first failing condition of any en
 - A token that an admin mints for an agent takes a lifetime and can be narrowed:
 
   ```bash
-  lumo agents token agt_3f9a51c07be24d18 --ttl 600 --scopes invoices.read
+  lumo agents token agt_3f9a51c07be24d18 --ttl 600 --scopes invoices:read
   lumo agents token agt_3f9a51c07be24d18 --ttl 7200 --resource https://mcp.example.com/mcp
   ```
 

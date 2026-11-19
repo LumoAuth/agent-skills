@@ -37,7 +37,7 @@ curl -X POST "https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/agents" \
       "namespace": "agents",
       "service_account": "report-runner"
     },
-    "capabilities": ["reports.send"]
+    "capabilities": ["reports:send"]
   }'
 ```
 

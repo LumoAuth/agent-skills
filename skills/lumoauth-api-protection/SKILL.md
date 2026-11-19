@@ -50,7 +50,7 @@ Ask the user for a value that you cannot find. Never guess one.
 | Issuer | `https://app.lumoauth.dev/orgs/acme-corp/api/v1` (EU: `https://eu.app.lumoauth.dev/...`) | `{base}/orgs/{orgId}/api/v1`, or the bare custom domain. Confirm with `{issuer}/.well-known/openid-configuration` |
 | JWKS URL | `https://app.lumoauth.dev/orgs/acme-corp/api/v1/.well-known/jwks.json` | `jwks_uri` in the discovery document |
 | API identifier (audience) | `https://api.example.com` | You choose it: an absolute `https` URI that names this API. It does not have to resolve |
-| Scopes of the API | `read:reports`, `write:reports` | You design them (step 1) |
+| Scopes of the API | `reports:read`, `reports:write` | You design them (step 1) |
 | Client ID and secret of a calling service | machine-to-machine only | Portal: **Applications → New application → Machine to machine** |
 
 The API itself needs no secret to validate JWTs. It needs only the issuer, the JWKS URL and its
@@ -70,7 +70,7 @@ own identifier.
    curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/admin/scopes \
      -H "Authorization: ApiKey $LUMOAUTH_API_KEY" \
      -H "Content-Type: application/json" \
-     -d '{"name": "read:reports", "description": "Read reports"}'
+     -d '{"name": "reports:read", "description": "Read reports"}'
    ```
 
    Show this command to the user before you run it. It needs an organization API key with the
@@ -173,7 +173,7 @@ import { AuthError, verifyAccessToken } from "./lumoauth-token.js";
 
 createServer(async (req, res) => {
   try {
-    const claims = await verifyAccessToken(req.headers.authorization, "read:reports");
+    const claims = await verifyAccessToken(req.headers.authorization, "reports:read");
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ subject: claims.sub, client: claims.client_id }));
   } catch (err) {
@@ -210,7 +210,7 @@ delegated).
 |---|---|---|
 | No token | `401` | `Bearer realm="api"` |
 | Token malformed, expired, wrong signature, issuer, audience or type | `401` | `Bearer realm="api", error="invalid_token", error_description="..."` |
-| Token valid, scope missing | `403` | `Bearer realm="api", error="insufficient_scope", scope="read:reports"` |
+| Token valid, scope missing | `403` | `Bearer realm="api", error="insufficient_scope", scope="reports:read"` |
 | Token valid, the user may not act on this object | `403` | None needed |
 
 Do not say in the response which check failed in more detail than this. Never log the token.
@@ -228,7 +228,7 @@ design.
    curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/token \
      -u "$LUMOAUTH_CLIENT_ID:$LUMOAUTH_CLIENT_SECRET" \
      -d "grant_type=client_credentials" \
-     -d "scope=read:reports" \
+     -d "scope=reports:read" \
      -d "resource=https://api.example.com"
    ```
 
@@ -237,7 +237,7 @@ design.
      "access_token": "eyJ...",
      "token_type": "Bearer",
      "expires_in": 3600,
-     "scope": "read:reports"
+     "scope": "reports:read"
    }
    ```
 

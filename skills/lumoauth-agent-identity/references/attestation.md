@@ -22,19 +22,20 @@ Content-Type: application/json
 
 {
   "attestation_token": "<JWT issued by the platform>",
-  "scope": "reports.send"
+  "scope": "reports:send"
 }
 ```
 
 `scope` is optional (a space-separated string or a list). It can only narrow the agent's
-capabilities. A scope outside them is refused with `400 invalid_scope`.
+capabilities. A scope outside them is refused with `400 invalid_scope`, and so is a value with a
+`.` such as `reports.send`: write `reports:send`.
 
 ```json
 {
   "access_token": "eyJraWQi...",
   "token_type": "Bearer",
   "expires_in": 900,
-  "scope": "reports.send",
+  "scope": "reports:send",
   "identity": {
     "provider": "github",
     "subject": "github:acme-corp/data-pipeline:refs/heads/main",

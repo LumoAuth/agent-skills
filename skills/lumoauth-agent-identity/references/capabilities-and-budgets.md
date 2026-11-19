@@ -2,23 +2,45 @@
 
 ## How capabilities are matched
 
+A capability is one of the agent's OAuth scope values, in the form `<resource>:<action>`, such as
+`document:read`. Write every capability, every `scope` value of a token request for the
+organization's API and every Ask API action of an agent in this form. LumoAuth rejects the dot form
+(`document.read`):
+
+| Where | Answer to a value with a `.` |
+|---|---|
+| Writing capabilities: Admin API create and update, `PUT /admin/agents/{agentId}/scopes`, `POST /agents/register`, the portal, the MCP tool `create_agent` | `400` `Not a valid capability: "invoices.read". Write it as <resource>:<action>, for example invoices:read; the dot form (invoices.read) is not accepted.` Nothing is stored |
+| An agent's token request for the organization's API: client credentials, token exchange, `/attest`, AAuth platform tokens, the Admin API token mint | `400 invalid_scope` |
+| An agent's Ask API call | `400 {"error": "invalid_action", "error_description": "Write it as <resource>:<action>, …"}`, before the budget is counted |
+
+Dots stay valid in: the scope strings of an MCP server (a token requested with `resource`
+carries them as the server spells them), users' OAuth scopes in the on-behalf-of exchange,
+LumoAuth permission names such as `users.delete`, the `permission` of `/authz/check`, a user's Ask
+API action, and conditions on `agent.capabilities` in attribute rules (either form matches).
+
 LumoAuth stores each capability in one form and matches every action against that form:
 
-1. Lower-case the name (ASCII letters).
-2. Replace `:` and `-` with `.`.
-3. Collapse repeated `.` and trim `.` from both ends.
+1. Trim the name and lower-case its ASCII letters.
+2. Collapse repeated `:` and trim `:` from both ends.
 
-So `Users:Delete` is stored as `users.delete`, and an action spelled `users:delete`,
-`Users.Delete` or `users-delete` matches it.
+A `-` is part of a name, not a separator (`pull-requests:comment`). So `Users:Delete` is stored as
+`users:delete`, and an action spelled `users:delete` or `Users:Delete` matches it. `users-delete`
+does not. As a capability, the LumoAuth permission `users.delete` is written `users:delete`.
+Capabilities stored before 2026-11-18 were rewritten in the `:` form, so no stored capability has
+a `.`.
 
-Wildcards: `prefix.*` covers every action under `prefix.` (`document.*` covers `document.read`,
-but not `document` itself). A bare `*` covers every action. No other wildcard exists.
+Wildcards: `prefix:*` covers every action under `prefix:` (`document:*` covers `document:read` and
+`document:read:draft`, but not `document` itself). A bare `*` covers every action. No other
+wildcard exists.
 
-The SDKs apply the same rules locally:
+Because a capability is a scope value, it has no spaces, quotes, backslashes or non-ASCII
+characters. LumoAuth refuses a new capability that has one.
+
+The SDKs apply the same rules locally. Pass names in the `<resource>:<action>` form:
 
 | SDK | Local check |
 |---|---|
-| Python | `agent.has_capability("read:documents")`, the `@require_capability("tool:search_web")` decorator, `capability_covers(capability, action)`, `any_capability_covers(capabilities, action)`, `normalize_capability(name)` from `lumoauth` |
+| Python | `agent.has_capability("document:read")`, the `@require_capability("web:search")` decorator, `capability_covers(capability, action)`, `any_capability_covers(capabilities, action)`, `normalize_capability(name)` from `lumoauth` |
 | Go | `agent.HasCapability(ctx, name)`, `agent.RequireCapability(ctx, name)`, `lumoauth.CapabilityCovers(capability, action)`, `lumoauth.AnyCapabilityCovers(capabilities, action)`, `lumoauth.NormalizeCapability(name)` |
 | .NET | `agent.HasCapabilityAsync(name)`, `agent.RequireCapabilityAsync(name)` |
 | Java | `agent.hasCapability(name)`, `agent.requireCapability(name)` |
@@ -35,7 +57,7 @@ from lumoauth import LumoAuthAgent, require_capability
 
 
 class ResearchAgent(LumoAuthAgent):
-    @require_capability("tool:search_web")
+    @require_capability("web:search")
     def search(self, query: str) -> str:
         # Raises PermissionError before this line when the capability is missing.
         return f"results for {query}"
@@ -50,7 +72,7 @@ print(agent.search("quarterly results"))
 
 `POST /orgs/{orgId}/api/v1/agents/ask` with the agent's token.
 
-Request: `{"action": "document.read", "context": {"id": "doc_99"}}`. `context` is optional.
+Request: `{"action": "document:read", "context": {"id": "doc_99"}}`. `context` is optional.
 
 Response:
 
@@ -64,6 +86,9 @@ Response:
 
 Rules:
 
+- Write the action as `<resource>:<action>`. An action with a `.` gets `400 invalid_action`, and
+  the budget is not counted. A user who calls the Ask API names a permission, such as
+  `documents.read`, and keeps the dot.
 - When the token was requested with a narrower `scope`, the action must also be inside that scope.
 - Each call counts against the agent's budget. A spent budget answers `429 budget_exceeded` (see
   "Budget policy" below).
@@ -88,8 +113,8 @@ organization's plan (see https://docs.lumoauth.dev/pricing-matrix).
     "agent_id": "agt_91827364a1b2c3d4",
     "status": "active"
   },
-  "capabilities": ["document.read", "tool.search_web"],
-  "scope": ["document.read"],
+  "capabilities": ["document:read", "web:search"],
+  "scope": ["document:read"],
   "workspace": { "slug": "acme-corp", "api_base": "/orgs/acme-corp/api/v1/" }
 }
 ```

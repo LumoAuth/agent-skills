@@ -55,7 +55,7 @@ Replace the client secret with two form parameters. Send no `Authorization: Basi
 ```bash
 curl -X POST https://app.lumoauth.dev/orgs/acme-corp/api/v1/oauth/token \
   -d "grant_type=client_credentials" \
-  -d "scope=read:reports" \
+  -d "scope=reports:read" \
   -d "resource=https://api.example.com" \
   -d "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer" \
   --data-urlencode "client_assertion=$CLIENT_ASSERTION"

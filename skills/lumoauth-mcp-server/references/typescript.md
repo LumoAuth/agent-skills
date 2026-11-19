@@ -128,7 +128,7 @@ app.post('/mcp', auth.protect(), (req, res) => mcp(req, res, req.body));
 | Option | Meaning |
 |---|---|
 | `scopes` | Scopes that the tool needs. A granted `prefix:*` scope covers the scopes under it; every other scope compares exactly |
-| `agents` | `true`: AI agents only. `['billing.reminders']`: agents with these capabilities |
+| `agents` | `true`: AI agents only. `['reminders:send']`: agents with these capabilities |
 | `users` | `true`: people only. `'delegated'`: also an agent that acts for a person |
 | `jit` | Require a just-in-time approval: a type string, or `{ type, actions?, locations?, identifier? }`, or a list of them |
 | `policy` | Ask LumoAuth's per-tool policy. Default: on when `auth.hasToolPolicy` is `true` |

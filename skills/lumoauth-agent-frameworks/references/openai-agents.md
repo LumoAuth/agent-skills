@@ -26,7 +26,7 @@ MCP_URL = "https://mcp.example.com/mcp"
 @function_tool
 async def fetch_document(document_id: str) -> str:
     """Fetch a document from the protected API."""
-    refusal = await asyncio.to_thread(check, "documents.read", id=document_id)
+    refusal = await asyncio.to_thread(check, "documents:read", id=document_id)
     if refusal:
         return refusal
     response = await asyncio.to_thread(
@@ -60,7 +60,7 @@ def _mcp_metric(metric: str) -> str:
 @function_tool
 async def query_financial_mcp(metric: str) -> str:
     """Query the financial metrics MCP server for one metric."""
-    refusal = await asyncio.to_thread(check, "mcp.financial", metric=metric)
+    refusal = await asyncio.to_thread(check, "financial_metrics:read", metric=metric)
     if refusal:
         return refusal
     return await asyncio.to_thread(_mcp_metric, metric)
@@ -69,7 +69,7 @@ async def query_financial_mcp(metric: str) -> str:
 @function_tool
 async def wire_transfer(vendor: str, amount: int, invoice: str) -> str:
     """Wire money in US dollars to a vendor to pay an invoice. Needs human approval."""
-    refusal = await asyncio.to_thread(check, "payments.wire", vendor=vendor, amount=amount)
+    refusal = await asyncio.to_thread(check, "payments:wire", vendor=vendor, amount=amount)
     if refusal:
         return refusal
     refusal = await asyncio.to_thread(
@@ -124,4 +124,4 @@ if __name__ == "__main__":
 |---|---|---|
 | The run stalls while a prompt is open | A blocking gate ran on the event loop | Wrap the call in `asyncio.to_thread` |
 | The model calls `wire_transfer` again after a denial | The instructions invite retries | Tell the model not to retry a refused action |
-| `Not allowed: payments.wire` for every call | The agent has no capability that covers `payments.wire` | Add the capability to the agent in the portal, or check the action name |
+| `Not allowed: payments:wire` for every call | The agent has no capability that covers `payments:wire` | Add the capability to the agent in the portal, or check the action name |
