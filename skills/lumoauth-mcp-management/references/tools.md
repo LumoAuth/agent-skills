@@ -57,9 +57,9 @@ Scopes: `manage:clients:read` to read, `manage:clients:write` to change.
 
 Scopes: `manage:agents:read` to read, `manage:agents:write` to change.
 
-- **Read**: `list_agents`, `get_agent`, `list_mcp_servers`, `get_mcp_server`
+- **Read**: `list_agents`, `get_agent`, `list_mcp_servers`, `get_mcp_server`, `list_mcp_tool_grants`
 - **Add**: `create_agent`, `create_mcp_server`
-- **Change or delete**: `update_agent`, `delete_agent`, `deactivate_agent`, `activate_agent`, `rotate_agent_credentials`, `delete_mcp_server`
+- **Change or delete**: `update_agent`, `delete_agent`, `deactivate_agent`, `activate_agent`, `rotate_agent_credentials`, `delete_mcp_server`, `set_mcp_tool_grants`, `remove_mcp_tool_grants`
 
 ## Webhooks
 
